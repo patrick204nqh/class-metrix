@@ -239,7 +239,7 @@ RSpec.describe ClassMetrix::Extractor do
         expect(result).to include("| Behavior")   # Multi-type header
         expect(result).to include("Constant")     # Type value
         expect(result).to include("Class Method") # Type value
-        expect(result).to include("| -")          # Sub-row type indicator (simplified check)
+        expect(result).to include("CONFIG_HASH.timeout") # Hash expansion with dot notation
         expect(result).to include(".timeout")     # Sub-row behavior
         expect(result).to include(".retries")     # Sub-row behavior
       end

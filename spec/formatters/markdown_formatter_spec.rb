@@ -72,7 +72,7 @@ RSpec.describe ClassMetrix::MarkdownFormatter do
         expect(result).to include(".retries")     # Sub-row path
         expect(result).to include("30")           # ClassA timeout value
         expect(result).to include("60")           # ClassB timeout value
-        expect(result).to include("true")         # ClassA ssl value
+        expect(result).to include("✅") # ClassA ssl value (true)
         expect(result).to include("❌") # Missing retries value
       end
 
@@ -106,9 +106,9 @@ RSpec.describe ClassMetrix::MarkdownFormatter do
         expect(result).to include("config")     # Main hash row
         expect(result).to include(".cache")     # Sub-row path
         expect(result).to include(".db")        # Sub-row path
-        # Nested hashes should show as inspect strings in the expanded view
-        expect(result).to include("{:host=>")
-        expect(result).to include("{:ttl=>")
+        # Nested hashes should show as truncated representation in the expanded view
+        expect(result).to include("{:ttl=>3600}")  # Cache hash fits in column width
+        expect(result).to include("{:ttl=>7200}")  # Cache hash fits in column width
       end
     end
 

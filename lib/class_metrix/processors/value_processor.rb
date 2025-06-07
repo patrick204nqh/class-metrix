@@ -1,30 +1,23 @@
 # frozen_string_literal: true
 
+require_relative "../formatters/shared/value_processor"
+
 module ClassMetrix
+  # Legacy value processor - now delegates to the new shared processor
+  # Maintained for backward compatibility with existing code
   class ValueProcessor
     def self.process(value, expand_hashes: false)
-      case value
-      when Hash
-        expand_hashes ? expand_hash(value) : format_hash(value)
-      when Array
-        value.map(&:to_s).join(", ")
-      when true
-        "✅"
-      when false
-        "❌"
-      when nil
-        "❌"
-      when String, Numeric
-        value.to_s
+      if expand_hashes && value.is_a?(Hash)
+        expand_hash(value)
       else
-        value.inspect
+        Formatters::Shared::ValueProcessor.process_for_markdown(value)
       end
     rescue StandardError => e
       "⚠️ #{e.class.name}"
     end
 
     def self.format_hash(hash)
-      hash.inspect
+      Formatters::Shared::ValueProcessor.process_for_markdown(hash)
     end
 
     def self.expand_hash(hash)
@@ -33,24 +26,15 @@ module ClassMetrix
     end
 
     def self.handle_extraction_error(error)
-      case error
-      when NameError
-        "🚫 Not defined"
-      when NoMethodError
-        "🚫 No method"
-      when StandardError
-        "⚠️ Error: #{error.message.split.first(3).join(" ")}"
-      else
-        "⚠️ #{error.class.name}"
-      end
+      Formatters::Shared::ValueProcessor.handle_extraction_error(error)
     end
 
     def self.missing_constant
-      "🚫 Not defined"
+      Formatters::Shared::ValueProcessor.missing_constant
     end
 
     def self.missing_method
-      "🚫 No method"
+      Formatters::Shared::ValueProcessor.missing_method
     end
   end
 end
