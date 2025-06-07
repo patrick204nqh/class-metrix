@@ -73,9 +73,28 @@ RSpec.describe ClassMetrix::Extractor do
     end
 
     it "accepts array of class names as strings" do
-      # For now, skip this test as it requires more complex class resolution
-      # This can be enhanced later to support nested class name resolution
-      skip "Complex class name resolution not yet implemented"
+      extractor = ClassMetrix.extract(:constants).from(%w[TestUser TestAdmin])
+      expect(extractor.instance_variable_get(:@classes)).to eq([TestUser, TestAdmin])
+    end
+
+    it "works end-to-end with string class names" do
+      result = ClassMetrix.extract(:constants)
+                          .from(%w[TestUser TestAdmin])
+                          .filter(/^ROLE/)
+                          .to_markdown
+
+      expect(result).to include("| Constant")
+      expect(result).to include("| TestUser")
+      expect(result).to include("| TestAdmin")
+      expect(result).to include("ROLE_NAME")
+      expect(result).to include("user")
+      expect(result).to include("admin")
+    end
+
+    it "handles invalid class names gracefully" do
+      expect do
+        ClassMetrix.extract(:constants).from(["NonExistentClass"])
+      end.to raise_error(ArgumentError, /Class not found/)
     end
   end
 
