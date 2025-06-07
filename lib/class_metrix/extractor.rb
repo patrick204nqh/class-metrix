@@ -4,6 +4,7 @@ require_relative "extractors/constants_extractor"
 require_relative "extractors/methods_extractor"
 require_relative "extractors/multi_type_extractor"
 require_relative "formatters/markdown_formatter"
+require_relative "formatters/csv_formatter"
 require_relative "utils/class_resolver"
 
 module ClassMetrix
@@ -60,6 +61,30 @@ module ClassMetrix
       }.merge(options)
 
       formatted = MarkdownFormatter.new(data, @expand_hashes, format_options).format
+
+      if filename
+        File.write(filename, formatted)
+        formatted
+      else
+        formatted
+      end
+    end
+
+    def to_csv(filename = nil, **options)
+      data = extract_all_data
+
+      # Merge default options with passed options
+      format_options = {
+        extraction_types: @types,
+        show_metadata: true,
+        separator: ",",
+        quote_char: '"',
+        flatten_hashes: true,
+        null_value: "",
+        comment_char: "#"
+      }.merge(options)
+
+      formatted = CsvFormatter.new(data, @expand_hashes, format_options).format
 
       if filename
         File.write(filename, formatted)

@@ -11,6 +11,7 @@
 - **📊 Hash Expansion**: Expand hash values into readable sub-rows  
 - **🛡️ Error Handling**: Graceful handling of missing methods and constants
 - **📝 Rich Markdown Reports**: Professional reports with configurable components
+- **📄 CSV Export**: Data analysis-friendly CSV output with hash flattening
 - **⚙️ Highly Configurable**: Customize every aspect of the output
 - **🚀 Simple API**: Chainable, intuitive interface
 
@@ -32,6 +33,15 @@ ClassMetrix.extract(:constants, :class_methods)
     title: "Service Configuration Audit",
     footer_style: :detailed,
     show_missing_summary: true
+  )
+
+# CSV output with hash flattening
+ClassMetrix.extract(:constants)
+  .from([DatabaseConfig, RedisConfig])
+  .expand_hashes
+  .to_csv("config_analysis.csv", 
+    title: "Configuration Analysis",
+    flatten_hashes: true
   )
 ```
 
@@ -147,11 +157,40 @@ ClassMetrix.extract(:class_methods)
   .to_markdown
 ```
 
+#### CSV Output
+```ruby
+# Basic CSV output
+ClassMetrix.extract(:constants)
+  .from([DatabaseConfig, RedisConfig])
+  .to_csv("config.csv")
+
+# CSV with hash flattening (separate columns for each hash key)
+ClassMetrix.extract(:constants)
+  .from([DatabaseConfig, RedisConfig])
+  .expand_hashes
+  .to_csv("config_flat.csv", flatten_hashes: true)
+
+# CSV with hash expansion (sub-rows for hash keys)
+ClassMetrix.extract(:constants)
+  .from([DatabaseConfig, RedisConfig])
+  .expand_hashes
+  .to_csv("config_expanded.csv", flatten_hashes: false)
+
+# Custom CSV options
+ClassMetrix.extract(:class_methods)
+  .from([ServiceA, ServiceB])
+  .to_csv(
+    separator: ";",           # Use semicolon separator
+    null_value: "N/A",       # Custom null value
+    show_metadata: false     # No comment headers
+  )
+```
+
 ## ⚙️ Configuration Options
 
 ClassMetrix offers extensive configuration options for customizing report generation:
 
-### Report Options
+### Markdown Report Options
 ```ruby
 ClassMetrix.extract(:constants)
   .from([User, Admin])
@@ -179,6 +218,30 @@ ClassMetrix.extract(:constants)
     
     # Missing behaviors analysis
     summary_style: :grouped       # :grouped, :flat, :detailed
+  )
+```
+
+### CSV Output Options
+```ruby
+ClassMetrix.extract(:constants)
+  .from([User, Admin])
+  .to_csv(
+    # File and title
+    "report.csv",
+    title: "Custom CSV Report",
+    
+    # Content options
+    show_metadata: true,          # Show comment headers
+    comment_char: "#",            # Comment character for metadata
+    
+    # CSV formatting
+    separator: ",",               # Column separator (comma, semicolon, tab)
+    quote_char: '"',              # Quote character
+    null_value: "",               # Value for nil/missing data
+    
+    # Hash handling
+    flatten_hashes: true,         # Flatten hashes into separate columns
+                                  # false = expand into sub-rows
   )
 ```
 

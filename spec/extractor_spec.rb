@@ -246,22 +246,37 @@ RSpec.describe ClassMetrix::Extractor do
     end
 
     context "file output" do
-      let(:temp_file) { "test_output.md" }
+      let(:temp_md_file) { "test_output.md" }
+      let(:temp_csv_file) { "test_output.csv" }
 
       after do
-        File.delete(temp_file) if File.exist?(temp_file)
+        File.delete(temp_md_file) if File.exist?(temp_md_file)
+        File.delete(temp_csv_file) if File.exist?(temp_csv_file)
       end
 
-      it "saves output to file when filename is provided" do
+      it "saves markdown output to file when filename is provided" do
         result = ClassMetrix.extract(:constants)
                             .from([TestUser, TestAdmin])
                             .filter(/^ROLE/)
-                            .to_markdown(temp_file)
+                            .to_markdown(temp_md_file)
 
-        expect(File.exist?(temp_file)).to be true
-        file_content = File.read(temp_file)
+        expect(File.exist?(temp_md_file)).to be true
+        file_content = File.read(temp_md_file)
         expect(file_content).to eq(result)
         expect(file_content).to include("ROLE_NAME")
+      end
+
+      it "saves CSV output to file when filename is provided" do
+        result = ClassMetrix.extract(:constants)
+                            .from([TestUser, TestAdmin])
+                            .filter(/^ROLE/)
+                            .to_csv(temp_csv_file)
+
+        expect(File.exist?(temp_csv_file)).to be true
+        file_content = File.read(temp_csv_file)
+        expect(file_content).to eq(result)
+        expect(file_content).to include("ROLE_NAME")
+        expect(file_content).to include(",") # CSV format
       end
     end
   end
@@ -298,6 +313,69 @@ RSpec.describe ClassMetrix::Extractor do
                    .filter(/broken/)
                    .to_markdown
       end.to raise_error(StandardError, "This method is broken")
+    end
+  end
+
+  describe "CSV output" do
+    it "generates CSV format" do
+      result = ClassMetrix.extract(:constants)
+                          .from([TestUser, TestAdmin])
+                          .filter(/^ROLE/)
+                          .to_csv(show_metadata: false)
+
+      expect(result).to include("Constant,TestUser,TestAdmin")
+      expect(result).to include("ROLE_NAME,user,admin")
+      expect(result).not_to include("|")  # No markdown table syntax
+      expect(result).not_to include("#")  # No metadata
+    end
+
+    it "supports CSV with metadata" do
+      result = ClassMetrix.extract(:constants)
+                          .from([TestUser, TestAdmin])
+                          .filter(/^ROLE/)
+                          .to_csv(title: "CSV Test Report")
+
+      expect(result).to include("# CSV Test Report")
+      expect(result).to include("# Classes: TestUser, TestAdmin")
+      expect(result).to include("Constant,TestUser,TestAdmin")
+      expect(result).to include("ROLE_NAME,user,admin")
+    end
+
+    it "supports hash flattening in CSV" do
+      result = ClassMetrix.extract(:constants)
+                          .from([TestUser, TestAdmin])
+                          .filter(/CONFIG_HASH/)
+                          .expand_hashes
+                          .to_csv(show_metadata: false, flatten_hashes: true)
+
+      expect(result).to include("CONFIG_HASH.timeout")
+      expect(result).to include("CONFIG_HASH.retries")
+      expect(result).to include("30")  # TestUser timeout
+      expect(result).to include("60")  # TestAdmin timeout
+    end
+
+    it "supports expanded rows in CSV" do
+      result = ClassMetrix.extract(:constants)
+                          .from([TestUser, TestAdmin])
+                          .filter(/CONFIG_HASH/)
+                          .expand_hashes
+                          .to_csv(show_metadata: false, flatten_hashes: false)
+
+      expect(result).to include("CONFIG_HASH")
+      expect(result).to include(".timeout")
+      expect(result).to include(".retries")
+      expect(result).to include("30")
+      expect(result).to include("60")
+    end
+
+    it "supports different CSV separators" do
+      result = ClassMetrix.extract(:constants)
+                          .from([TestUser, TestAdmin])
+                          .filter(/^ROLE/)
+                          .to_csv(show_metadata: false, separator: ";")
+
+      expect(result).to include("Constant;TestUser;TestAdmin")
+      expect(result).to include("ROLE_NAME;user;admin")
     end
   end
 
