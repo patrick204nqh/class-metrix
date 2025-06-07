@@ -1,0 +1,61 @@
+{
+  "RBS Class Definition": {
+    "prefix": "rbsclass",
+    "body": [
+      "class ${1:ClassName}",
+      "  ${2:# Instance variables}",
+      "  ${3:@var}: ${4:Type}",
+      "",
+      "  ${5:# Methods}",
+      "  def initialize: (${6:params}) -> void",
+      "  def ${7:method_name}: (${8:params}) -> ${9:ReturnType}",
+      "",
+      "  private",
+      "",
+      "  def ${10:private_method}: () -> ${11:ReturnType}",
+      "end"
+    ],
+    "description": "RBS class definition template"
+  },
+  "RBS Module Definition": {
+    "prefix": "rbsmodule",
+    "body": [
+      "module ${1:ModuleName}",
+      "  ${2:# Module methods}",
+      "  def self.${3:method_name}: (${4:params}) -> ${5:ReturnType}",
+      "",
+      "  ${6:# Instance methods}",
+      "  def ${7:method_name}: (${8:params}) -> ${9:ReturnType}",
+      "end"
+    ],
+    "description": "RBS module definition template"
+  },
+  "RBS Method Definition": {
+    "prefix": "rbsmethod",
+    "body": [
+      "def ${1:method_name}: (${2:params}) -> ${3:ReturnType}"
+    ],
+    "description": "RBS method definition"
+  },
+  "RBS Attribute Reader": {
+    "prefix": "rbsattr_reader",
+    "body": [
+      "attr_reader ${1:attribute}: ${2:Type}"
+    ],
+    "description": "RBS attribute reader"
+  },
+  "RBS Attribute Writer": {
+    "prefix": "rbsattr_writer",
+    "body": [
+      "attr_writer ${1:attribute}: ${2:Type}"
+    ],
+    "description": "RBS attribute writer"
+  },
+  "RBS Attribute Accessor": {
+    "prefix": "rbsattr_accessor",
+    "body": [
+      "attr_accessor ${1:attribute}: ${2:Type}"
+    ],
+    "description": "RBS attribute accessor"
+  }
+}

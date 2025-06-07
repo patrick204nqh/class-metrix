@@ -94,6 +94,147 @@
         "focus": false,
         "panel": "shared"
       }
+    },
+    {
+      "label": "RBS: Validate",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "rbs", "validate"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        {
+          "owner": "rbs",
+          "fileLocation": "absolute",
+          "pattern": [
+            {
+              "regexp": "^([^:]+):(\\d+):(\\d+): (.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "message": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Steep: Type Check",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "steep", "check"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        {
+          "owner": "steep",
+          "fileLocation": "absolute",
+          "pattern": [
+            {
+              "regexp": "^([^:]+):(\\d+):(\\d+): \\[([^\\]]+)\\] (.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "message": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Steep: Watch Mode",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "steep", "watch", "lib"],
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        {
+          "owner": "steep",
+          "fileLocation": "absolute",
+          "pattern": [
+            {
+              "regexp": "^([^:]+):(\\d+):(\\d+): \\[([^\\]]+)\\] (.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "message": 5
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "^# Type checking files:",
+            "endsPattern": "^(No type error detected|Detected \\d+ problems)"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Steep: Watch All Targets",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "steep", "watch", "--target", "lib"],
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        {
+          "owner": "steep",
+          "fileLocation": "absolute",
+          "pattern": [
+            {
+              "regexp": "^([^:]+):(\\d+):(\\d+): \\[([^\\]]+)\\] (.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "message": 5
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "^# Type checking files:",
+            "endsPattern": "^(No type error detected|Detected \\d+ problems)"
+          }
+        }
+      ]
+    },
+    {
+      "label": "RBS: Generate Prototypes",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "rbs", "prototype", "rb", "lib"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ]
 }

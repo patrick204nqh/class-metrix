@@ -1,10 +1,15 @@
-{  "recommendations": [
+{
+  "recommendations": [
     // Ruby language support
     "shopify.ruby-lsp",
-    "castwide.solargraph",
 
-    // Alternative Ruby support (choose one of the above)
-    // "rebornix.ruby",
+    // RBS and Steep support (type checking)
+    "soutaro.rbs-syntax",
+    "soutaro.steep-vscode",
+    "mateuszdrewniak.rbs-snippets",
+
+    // Debugging support
+    "koichisasada.vscode-rdbg",
 
     // Markdown support
     "esbenp.prettier-vscode",
@@ -21,8 +26,6 @@
 
     // Additional helpful extensions
     "ms-vscode.test-adapter-converter",
-    "hbenl.vscode-test-explorer",
-    "formulahendry.auto-rename-tag",
-    "bradlc.vscode-tailwindcss"
+    "hbenl.vscode-test-explorer"
   ]
 }

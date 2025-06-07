@@ -39,13 +39,24 @@
       "other": "off"
     }
   },
+  "[rbs]": {
+    "editor.defaultFormatter": "soutaro.rbs-syntax",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.semanticHighlighting.enabled": true,
+    "editor.rulers": [120],
+    "editor.trimAutoWhitespace": true
+  },
 
   // File associations
   "files.associations": {
     "*.gemspec": "ruby",
     "Gemfile": "ruby",
     "Rakefile": "ruby",
-    ".rubocop.yml": "yaml"
+    ".rubocop.yml": "yaml",
+    "*.rbs": "rbs",
+    "Steepfile": "ruby"
   },
 
   // Auto-save settings
@@ -80,6 +91,19 @@
   // Rubocop specific settings
   "ruby.rubocop.configFilePath": ".rubocop.yml",
   "ruby.rubocop.suppressRubocopWarnings": false,
+
+  // Steep type checker settings
+  "steep.enabled": true,
+  "steep.checkOnSave": true,
+  "steep.diagnosticsEnabled": true,
+  "steep.signatureHelp": true,
+  "steep.hover": true,
+
+  // RBS validation settings
+  "ruby.rbs": {
+    "enabled": true,
+    "diagnostics": true
+  },
 
   // Additional helpful settings
   "breadcrumbs.enabled": true,

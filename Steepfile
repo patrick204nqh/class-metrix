@@ -14,4 +14,11 @@ target :lib do
 
   # Configure typing options
   configure_code_diagnostics(D::Ruby.default)
+
+  # Disable some noisy diagnostics for better development experience
+  configure_code_diagnostics do |hash|
+    hash[D::Ruby::UnresolvedOverloading] = :information
+    hash[D::Ruby::FallbackAny] = :information
+    hash[D::Ruby::ImplicitBreakValueMismatch] = :hint
+  end
 end
