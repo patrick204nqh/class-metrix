@@ -1,184 +1,354 @@
 # ClassMetrix
 
-Simple extraction and comparison of Ruby class behaviors (constants and class methods) with clean markdown table output.
+[![Gem Version](https://badge.fury.io/rb/class-metrix.svg)](https://badge.fury.io/rb/class-metrix)
+[![Ruby](https://github.com/your-username/class-metrix/actions/workflows/ruby.yml/badge.svg)](https://github.com/your-username/class-metrix/actions/workflows/ruby.yml)
 
-## Installation
+**ClassMetrix** is a Ruby gem that extracts and compares class behaviors (constants, class methods, and more) across multiple classes, generating clean markdown reports for analysis, documentation, and compliance auditing.
 
-Add this line to your application's Gemfile:
+## ✨ Features
+
+- **🔍 Multi-Type Extraction**: Constants, class methods, and more
+- **📊 Hash Expansion**: Expand hash values into readable sub-rows  
+- **🛡️ Error Handling**: Graceful handling of missing methods and constants
+- **📝 Rich Markdown Reports**: Professional reports with configurable components
+- **⚙️ Highly Configurable**: Customize every aspect of the output
+- **🚀 Simple API**: Chainable, intuitive interface
+
+## 🚀 Quick Start
+
+```ruby
+# Basic usage
+ClassMetrix.extract(:constants)
+  .from([User, Admin, Guest])
+  .to_markdown
+
+# Advanced usage with configuration
+ClassMetrix.extract(:constants, :class_methods)
+  .from([DatabaseConfig, RedisConfig, S3Config])
+  .filter(/config$/)
+  .expand_hashes
+  .handle_errors
+  .to_markdown("audit_report.md", 
+    title: "Service Configuration Audit",
+    footer_style: :detailed,
+    show_missing_summary: true
+  )
+```
+
+## 📦 Installation
+
+Add to your Gemfile:
 
 ```ruby
 gem 'class-metrix'
 ```
 
-And then execute:
+Or install directly:
 
-    $ bundle install
+```bash
+gem install class-metrix
+```
 
-Or install it yourself as:
+## 📖 Usage Guide
 
-    $ gem install class-metrix
+### Basic Extraction
 
-## Usage
-
-ClassMetrix provides a simple, chainable API for extracting and comparing class behaviors:
-
-### Basic Usage
-
+#### Constants
 ```ruby
-require 'class_metrix'
-
 # Extract constants from multiple classes
 ClassMetrix.extract(:constants)
   .from([User, Admin, Guest])
   .to_markdown
 
-# Extract class methods
-ClassMetrix.extract(:class_methods)
-  .from([User, Admin, Guest])
-  .to_markdown
+# Output:
+# | Constant   | User     | Admin    | Guest    |
+# |------------|----------|----------|----------|
+# | ROLE_NAME  | 'user'   | 'admin'  | 'guest'  |
+# | PERMISSION | 'read'   | 'write'  | 'read'   |
 ```
 
-### Filtering
-
+#### Class Methods
 ```ruby
-# Filter constants by pattern
-ClassMetrix.extract(:constants)
-  .from([User, Admin, Guest])
-  .filter(/^ROLE/)
-  .to_markdown
-
-# Filter methods by pattern
+# Extract class method results
 ClassMetrix.extract(:class_methods)
-  .from([User, Admin, Guest])
+  .from([DatabaseConfig, RedisConfig])
   .filter(/config$/)
   .to_markdown
+
+# Output:
+# | Method        | DatabaseConfig           | RedisConfig              |
+# |---------------|--------------------------|--------------------------|
+# | db_config     | {:host=>"localhost"}     | 🚫 Not defined           |
+# | cache_config  | 🚫 Not defined           | {:host=>"redis.local"}   |
 ```
 
-### Multi-Type Extraction
-
+#### Multi-Type Extraction
 ```ruby
-# Extract multiple behavior types in one table
+# Combine multiple extraction types in one table
 ClassMetrix.extract(:constants, :class_methods)
-  .from([User, Admin, Guest])
-  .filter(/ROLE|authenticate/)
+  .from([User, Admin])
   .to_markdown
+
+# Output:
+# | Type         | Behavior    | User     | Admin    |
+# |--------------|-------------|----------|----------|
+# | Constant     | ROLE_NAME   | 'user'   | 'admin'  |
+# | Class Method | permissions | ['read'] | ['read', 'write'] |
 ```
 
-### Error Handling
+### Advanced Features
 
+#### Hash Expansion
 ```ruby
-# Handle extraction errors gracefully
+# Expand hash values into readable sub-rows
+ClassMetrix.extract(:constants)
+  .from([DatabaseConfig, RedisConfig])
+  .expand_hashes
+  .to_markdown
+
+# Output:
+# | Constant    | DatabaseConfig           | RedisConfig              |
+# |-------------|--------------------------|--------------------------|
+# | DB_CONFIG   | {:host=>"localhost"}     | {:host=>"redis.local"}   |
+# | .host       | localhost                | redis.local              |
+# | .port       | 5432                     | — (missing key)          |
+# | .timeout    | — (missing key)          | 30                       |
+```
+
+#### Error Handling
+```ruby
+# Handle missing methods and constants gracefully
 ClassMetrix.extract(:class_methods)
-  .from([User, Admin, Guest])
+  .from([ServiceA, ServiceB])
   .handle_errors
   .to_markdown
+
+# Error indicators:
+# 🚫 Not defined  - Constant/method doesn't exist
+# 🚫 No method    - Method doesn't exist
+# ⚠️ Error: msg   - Runtime error with context
+# ❌              - nil or false values
+# ✅              - true values
+# —               - Missing hash key
 ```
 
-### Save to File
-
+#### Filtering
 ```ruby
-# Save output to file
+# Filter behaviors by pattern
 ClassMetrix.extract(:constants)
   .from([User, Admin, Guest])
-  .to_markdown('class_comparison.md')
+  .filter(/^ROLE_/, /^PERMISSION_/)
+  .to_markdown
+
+# Multiple filters (OR logic)
+ClassMetrix.extract(:class_methods)
+  .from([ConfigA, ConfigB])
+  .filter(/config$/, /setup$/)
+  .to_markdown
 ```
 
-## Example Output
+## ⚙️ Configuration Options
 
-### Constants Extraction
+ClassMetrix offers extensive configuration options for customizing report generation:
+
+### Report Options
+```ruby
+ClassMetrix.extract(:constants)
+  .from([User, Admin])
+  .to_markdown(
+    # File and title
+    "report.md",
+    title: "Custom Report Title",
+    
+    # Content sections
+    show_metadata: true,          # Show title and report info
+    show_classes: true,           # Show "Classes Analyzed" section
+    show_extraction_info: true,   # Show "Extraction Types" section
+    show_missing_summary: false,  # Show missing behaviors summary
+    
+    # Footer configuration
+    show_footer: true,            # Show footer
+    footer_style: :detailed,      # :default, :minimal, :detailed
+    show_timestamp: true,         # Include generation timestamp
+    custom_footer: "Custom note", # Custom footer message
+    
+    # Table formatting
+    table_style: :standard,       # :standard, :compact, :wide
+    min_column_width: 3,          # Minimum column width
+    max_column_width: 50,         # Maximum column width (for :compact style)
+    
+    # Missing behaviors analysis
+    summary_style: :grouped       # :grouped, :flat, :detailed
+  )
+```
+
+### Footer Styles
+
+#### Default Footer
 ```markdown
-| Constant            | User | Admin              | Guest |
-|---------------------|------|--------------------|-------|
-| ROLE_NAME           | user | admin              | guest |
-| DEFAULT_PERMISSIONS | read | read, write, admin |       |
-| MAX_LOGIN_ATTEMPTS  | 3    | ❌                  | ❌     |
+---
+*Report generated by ClassMetrix gem*
 ```
 
-### Class Methods Extraction
+#### Minimal Footer
 ```markdown
-| Method              | User  | Admin      | Guest |
-|---------------------|-------|------------|-------|
-| authenticate_method | basic | two_factor | none  |
-| session_timeout     | 3600  | 7200       | 1800  |
+---
+*Generated by ClassMetrix*
 ```
 
-### Multi-Type Extraction
+#### Detailed Footer
 ```markdown
-| Type         | Behavior            | User  | Admin      | Guest |
-|--------------|---------------------|-------|------------|-------|
-| Constant     | ROLE_NAME           | user  | admin      | guest |
-| Class Method | authenticate_method | basic | two_factor | none  |
+---
+## Report Information
+
+- **Generated by**: [ClassMetrix gem](https://github.com/your-username/class-metrix)
+- **Generated at**: 2024-01-15 14:30:25 UTC
+- **Ruby version**: 3.2.0
 ```
 
-## Value Types
+### Missing Behaviors Styles
 
-ClassMetrix handles all Ruby value types with visual indicators:
+#### Grouped (Default)
+```markdown
+## Missing Behaviors Summary
 
-- **Strings/Numbers**: Displayed as-is
-- **Arrays**: Joined with commas
-- **Hashes**: Displayed as hash notation
-- **true**: Displayed as ✅
-- **false**: Displayed as ❌
-- **nil**: Displayed as ❌
-- **Errors**: Displayed as ⚠️ with error type
+### DatabaseConfig
+- `redis_config` - 🚫 Not defined
+- `cache_timeout` - 🚫 No method
 
-## API Reference
+### RedisConfig  
+- `db_config` - 🚫 Not defined
+```
 
-### ClassMetrix.extract(*types)
+#### Flat
+```markdown
+## Missing Behaviors
 
-Creates a new extractor for the specified behavior types.
+- **DatabaseConfig**: `redis_config` - 🚫 Not defined
+- **DatabaseConfig**: `cache_timeout` - 🚫 No method
+- **RedisConfig**: `db_config` - 🚫 Not defined
+```
 
-**Parameters:**
-- `types` - One or more extraction types (`:constants`, `:class_methods`)
+#### Detailed
+```markdown
+## Missing Behaviors Analysis
 
-**Returns:** `ClassMetrix::Extractor` instance
+**Summary**: 3 missing behaviors across 2 classes
 
-### Extractor Methods
+### 🚫 Not (2 items)
+- **DatabaseConfig**: `redis_config` - 🚫 Not defined
+- **RedisConfig**: `db_config` - 🚫 Not defined
 
-#### #from(classes)
-Specifies the classes to extract behaviors from.
+### 🚫 No (1 items)
+- **DatabaseConfig**: `cache_timeout` - 🚫 No method
+```
 
-**Parameters:**
-- `classes` - Array of Class objects or class name strings
+## 🎯 Real-World Examples
 
-**Returns:** Self (chainable)
+### Microservices Configuration Audit
+```ruby
+# Audit configuration consistency across services
+services = [DatabaseService, RedisService, S3Service, AuthService]
 
-#### #filter(pattern)
-Filters behaviors by name pattern.
+ClassMetrix.extract(:constants, :class_methods)
+  .from(services)
+  .filter(/CONFIG/, /timeout/, /pool/)
+  .expand_hashes
+  .handle_errors
+  .to_markdown("microservices_audit.md",
+    title: "Microservices Configuration Audit",
+    show_missing_summary: true,
+    summary_style: :detailed,
+    footer_style: :detailed
+  )
+```
 
-**Parameters:**
-- `pattern` - Regex or String pattern to match behavior names
+### Policy Classes Comparison
+```ruby
+# Compare authorization policies
+policies = [UserPolicy, AdminPolicy, ModeratorPolicy]
 
-**Returns:** Self (chainable)
+ClassMetrix.extract(:constants)
+  .from(policies)
+  .filter(/^PERMISSION_/, /^ROLE_/)
+  .to_markdown("policy_comparison.md",
+    title: "Authorization Policy Analysis",
+    show_timestamp: true
+  )
+```
 
-#### #handle_errors
-Enables graceful error handling for failed extractions.
+### API Version Compatibility
+```ruby
+# Check API compatibility across versions
+apis = [V1::UsersAPI, V2::UsersAPI, V3::UsersAPI]
 
-**Returns:** Self (chainable)
+ClassMetrix.extract(:class_methods)
+  .from(apis)
+  .filter(/^endpoint_/, /^validate_/)
+  .handle_errors
+  .to_markdown("api_compatibility.md",
+    title: "API Version Compatibility Report",
+    show_missing_summary: true,
+    summary_style: :flat
+  )
+```
 
-#### #expand_hashes
-Enables hash value expansion into sub-rows (future feature).
+## 🏗️ Architecture
 
-**Returns:** Self (chainable)
+ClassMetrix uses a modular component architecture for maximum flexibility:
 
-#### #to_markdown(filename = nil)
-Generates markdown table output.
+```
+MarkdownFormatter
+├── HeaderComponent      # Title, classes, extraction info
+├── TableComponent       # Table formatting and hash expansion  
+├── MissingBehaviorsComponent  # Missing behavior analysis
+└── FooterComponent      # Footer with various styles
+```
 
-**Parameters:**
-- `filename` - Optional file path to save output
+Each component is independently configurable and can be customized for specific needs.
 
-**Returns:** String containing markdown table
+## 🧪 Development
 
-## Development
+```bash
+# Clone the repository
+git clone https://github.com/your-username/class-metrix.git
+cd class-metrix
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+# Install dependencies
+bundle install
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+# Run tests
+bundle exec rspec
 
-## Contributing
+# Run examples
+ruby examples/basic/01_simple_constants.rb
+ruby examples/advanced/hash_expansion.rb
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/class-metrix.
+## 📋 Requirements
 
-## License
+- Ruby 2.7+ 
+- No runtime dependencies (pure Ruby implementation)
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -am 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This gem is available as open source under the terms of the [MIT License](LICENSE).
+
+## 🔗 Links
+
+- [Documentation](https://github.com/your-username/class-metrix/wiki)
+- [Examples](examples/)
+- [Build Guide](BUILD_GUIDE.md)
+- [Changelog](CHANGELOG.md)
+
+---
+
+**Built with ❤️ for Ruby developers who love clean, maintainable code.**

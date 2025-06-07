@@ -42,14 +42,24 @@ module ClassMetrix
       self
     end
 
-    def to_markdown(filename = nil, title: nil, show_missing_summary: false)
+    def to_markdown(filename = nil, **options)
       data = extract_all_data
-      options = {
-        title: title,
+
+      # Merge default options with passed options
+      format_options = {
         extraction_types: @types,
-        show_missing_summary: show_missing_summary
-      }
-      formatted = MarkdownFormatter.new(data, @expand_hashes, options).format
+        show_missing_summary: false,
+        show_footer: true,
+        footer_style: :default,
+        show_timestamp: false,
+        show_metadata: true,
+        show_classes: true,
+        show_extraction_info: true,
+        table_style: :standard,
+        summary_style: :grouped
+      }.merge(options)
+
+      formatted = MarkdownFormatter.new(data, @expand_hashes, format_options).format
 
       if filename
         File.write(filename, formatted)

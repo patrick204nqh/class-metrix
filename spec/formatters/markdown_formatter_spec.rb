@@ -154,30 +154,41 @@ RSpec.describe ClassMetrix::MarkdownFormatter do
     end
   end
 
-  describe "#calculate_column_widths" do
-    it "calculates proper column widths" do
-      formatter = described_class.new({ headers: [], rows: [] }, false)
-      headers = ["Short", "Very Long Header", "Med"]
-      rows = [
-        ["A", "Short", "Medium Length"],
-        ["Very Long Value", "B", "C"]
-      ]
+  describe "component integration" do
+    it "generates reports using modular components" do
+      data = {
+        headers: %w[Method ClassA ClassB],
+        rows: [
+          %w[method1 value1 value2],
+          %w[method2 value3 value4]
+        ]
+      }
+      formatter = described_class.new(data, false, { title: "Test Report" })
+      result = formatter.format
 
-      widths = formatter.send(:calculate_column_widths, headers, rows)
-
-      expect(widths[0]).to be >= "Very Long Value".length
-      expect(widths[1]).to be >= "Very Long Header".length
-      expect(widths[2]).to be >= "Medium Length".length
+      expect(result).to include("# Test Report")        # Header component
+      expect(result).to include("| Method")             # Table component
+      expect(result).to include("*Report generated")    # Footer component
     end
 
-    it "enforces minimum width of 3" do
-      formatter = described_class.new({ headers: [], rows: [] }, false)
-      headers = ["A"]
-      rows = [["B"]]
+    it "supports configurable components" do
+      data = {
+        headers: %w[Method ClassA ClassB],
+        rows: [
+          %w[method1 value1 value2]
+        ]
+      }
+      formatter = described_class.new(data, false, {
+                                        show_metadata: false,
+                                        show_classes: false,
+                                        show_footer: false
+                                      })
+      result = formatter.format
 
-      widths = formatter.send(:calculate_column_widths, headers, rows)
-
-      expect(widths[0]).to eq(3)
+      expect(result).not_to include("# ")               # No title header
+      expect(result).not_to include("## Classes")       # No classes section
+      expect(result).to include("| Method")             # Still has table
+      expect(result).not_to include("*Report generated") # No footer
     end
   end
 end
