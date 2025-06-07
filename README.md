@@ -1,7 +1,7 @@
 # ClassMetrix
 
 [![Gem Version](https://badge.fury.io/rb/class-metrix.svg)](https://badge.fury.io/rb/class-metrix)
-[![Ruby](https://github.com/your-username/class-metrix/actions/workflows/ruby.yml/badge.svg)](https://github.com/your-username/class-metrix/actions/workflows/ruby.yml)
+[![CI](https://github.com/patrick204nqh/class-metrix/actions/workflows/main.yml/badge.svg)](https://github.com/patrick204nqh/class-metrix/actions/workflows/main.yml)
 
 **ClassMetrix** is a Ruby gem that extracts and compares class behaviors (constants, class methods, and more) across multiple classes, generating clean markdown reports for analysis, documentation, and compliance auditing.
 

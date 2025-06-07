@@ -1,0 +1,102 @@
+name: Release Gem
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby: ['3.1', '3.2', '3.3']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Ruby ${{ matrix.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      
+      - name: Run tests
+        run: bundle exec rake spec
+      
+      - name: Run RuboCop
+        run: bundle exec rake rubocop
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+      
+      - name: Verify version consistency
+        run: |
+          GEMSPEC_VERSION=$(ruby -e "require './lib/class_metrix/version'; puts ClassMetrix::VERSION")
+          TAG_VERSION="${{ steps.extract_version.outputs.version }}"
+          echo "Gemspec version: $GEMSPEC_VERSION"
+          echo "Tag version: $TAG_VERSION"
+          if [ "$GEMSPEC_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch! Gemspec: $GEMSPEC_VERSION, Tag: $TAG_VERSION"
+            exit 1
+          fi
+      
+      - name: Build gem
+        run: gem build class-metrix.gemspec
+      
+      - name: Setup RubyGems credentials
+        run: |
+          mkdir -p ~/.gem
+          cat > ~/.gem/credentials << EOF
+          ---
+          :rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}
+          EOF
+          chmod 0600 ~/.gem/credentials
+      
+      - name: Publish to RubyGems
+        run: |
+          gem push class-metrix-${{ steps.extract_version.outputs.version }}.gem
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.extract_version.outputs.version }}
+          body: |
+            ## Changes in version ${{ steps.extract_version.outputs.version }}
+            
+            See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
+            
+            ## Installation
+            
+            ```bash
+            gem install class-metrix -v ${{ steps.extract_version.outputs.version }}
+            ```
+            
+            Or add to your Gemfile:
+            
+            ```ruby
+            gem 'class-metrix', '~> ${{ steps.extract_version.outputs.version }}'
+            ```
+          draft: false
+          prerelease: false 
