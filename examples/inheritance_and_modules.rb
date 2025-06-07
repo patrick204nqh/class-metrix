@@ -123,4 +123,33 @@ result = ClassMetrix.extract(:constants, :class_methods)
                    .filter(/config|timeout|service/i)
                    .expand_hashes
                    .to_markdown
+puts result
+
+puts "\n6. Hash Expansion Modes"
+puts "-" * 40
+
+puts "\n6a. Default: Show Only Main Rows (Collapsed Hashes)"
+result = ClassMetrix.extract(:class_methods)
+                   .from([CacheService])
+                   .filter(/config/)
+                   .expand_hashes
+                   .to_markdown
+puts result
+
+puts "\n6b. Show Only Key Rows (Expanded Details)"
+result = ClassMetrix.extract(:class_methods)
+                   .from([CacheService])
+                   .filter(/config/)
+                   .expand_hashes
+                   .show_only_keys
+                   .to_markdown
+puts result
+
+puts "\n6c. Show Both Main and Key Rows"
+result = ClassMetrix.extract(:class_methods)
+                   .from([CacheService])
+                   .filter(/config/)
+                   .expand_hashes
+                   .show_expanded_details
+                   .to_markdown
 puts result 

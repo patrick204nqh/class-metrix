@@ -7,8 +7,10 @@ module ClassMetrix
     module Components
       class TableComponent
         class RowProcessor
-          def initialize(data_extractor)
+          def initialize(data_extractor, options = {})
             @data_extractor = data_extractor
+            @hide_main_row = options.fetch(:hide_main_row, false)
+            @hide_key_rows = options.fetch(:hide_key_rows, true) # Default: show only main rows
           end
 
           def process_simple_rows(rows)
@@ -57,15 +59,27 @@ module ClassMetrix
           def build_expanded_rows(row_data, all_hash_keys, original_row)
             expanded_rows = []
 
-            # Add main row
-            expanded_rows << build_main_expanded_row(row_data)
+            # Add main row if configured to show
+            expanded_rows << build_main_expanded_row(row_data) if should_show_main_row?
 
-            # Add key rows
-            all_hash_keys.to_a.sort.each do |key|
-              expanded_rows << build_key_row(key, row_data, original_row)
-            end
+            # Add key rows if configured to show
+            expanded_rows.concat(build_key_rows(all_hash_keys, row_data, original_row)) if should_show_key_rows?
 
             expanded_rows
+          end
+
+          def should_show_main_row?
+            !@hide_main_row
+          end
+
+          def should_show_key_rows?
+            !@hide_key_rows
+          end
+
+          def build_key_rows(all_hash_keys, row_data, original_row)
+            all_hash_keys.to_a.sort.map do |key|
+              build_key_row(key, row_data, original_row)
+            end
           end
 
           def build_main_expanded_row(row_data)

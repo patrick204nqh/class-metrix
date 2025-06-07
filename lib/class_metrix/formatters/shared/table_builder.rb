@@ -125,9 +125,22 @@ module ClassMetrix
 
         def build_expanded_row_set(row, behavior_name, values, all_hash_keys)
           expanded_rows = []
-          expanded_rows << build_main_row(row, behavior_name, values)
-          expanded_rows.concat(build_sub_rows(all_hash_keys, values))
+
+          # Add main row if configured to show
+          expanded_rows << build_main_row(row, behavior_name, values) if should_show_main_row?
+
+          # Add sub rows if configured to show
+          expanded_rows.concat(build_sub_rows(all_hash_keys, values)) if should_show_key_rows?
+
           expanded_rows
+        end
+
+        def should_show_main_row?
+          !@options.fetch(:hide_main_row, false)
+        end
+
+        def should_show_key_rows?
+          !@options.fetch(:hide_key_rows, true) # Default: hide key rows
         end
 
         def build_main_row(row, behavior_name, values)

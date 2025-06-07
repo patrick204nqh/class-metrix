@@ -100,10 +100,18 @@ module ClassMetrix
       all_singleton_modules.each do |mod|
         next if core_module?(mod)
 
-        methods.merge(mod.instance_methods(false).map(&:to_s))
+        module_methods = mod.instance_methods(false).map(&:to_s)
+        # Filter out methods that shouldn't be called directly
+        module_methods = module_methods.reject { |method| excluded_module_method?(method) }
+        methods.merge(module_methods)
       end
 
       methods
+    end
+
+    def excluded_module_method?(method_name)
+      # Methods that require arguments or shouldn't be called directly
+      %w[included extended prepended].include?(method_name)
     end
 
     def get_all_singleton_modules(klass)

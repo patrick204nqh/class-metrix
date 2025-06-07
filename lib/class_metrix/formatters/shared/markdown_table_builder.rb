@@ -37,8 +37,13 @@ module ClassMetrix
 
         def build_expanded_row_structure(row, behavior_name, values, all_hash_keys)
           expanded_rows = []
-          expanded_rows << build_main_row(row, behavior_name, values)
-          expanded_rows.concat(build_hash_key_rows(row, behavior_name, values, all_hash_keys))
+
+          # Add main row if configured to show
+          expanded_rows << build_main_row(row, behavior_name, values) if should_show_main_row?
+
+          # Add key rows if configured to show
+          expanded_rows.concat(build_hash_key_rows(row, behavior_name, values, all_hash_keys)) if should_show_key_rows?
+
           expanded_rows
         end
 

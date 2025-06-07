@@ -63,7 +63,7 @@ RSpec.describe ClassMetrix::MarkdownFormatter do
       end
 
       it "expands hashes with main row plus sub-rows" do
-        formatter = described_class.new(data, true)
+        formatter = described_class.new(data, true, { hide_key_rows: false })
         result = formatter.format
 
         expect(result).to include("config")       # Main hash row
@@ -100,7 +100,7 @@ RSpec.describe ClassMetrix::MarkdownFormatter do
       end
 
       it "handles nested hashes by showing their inspect representation" do
-        formatter = described_class.new(data, true)
+        formatter = described_class.new(data, true, { hide_key_rows: false })
         result = formatter.format
 
         expect(result).to include("config")     # Main hash row

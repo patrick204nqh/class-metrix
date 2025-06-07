@@ -145,7 +145,8 @@ RSpec.describe ClassMetrix::CsvFormatter do
       it "expands hashes into sub-rows when not flattening" do
         formatter = described_class.new(data, true, {
                                           show_metadata: false,
-                                          flatten_hashes: false
+                                          flatten_hashes: false,
+                                          hide_key_rows: false # Show both main and key rows
                                         })
         result = formatter.format
 

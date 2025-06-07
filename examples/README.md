@@ -87,6 +87,26 @@ ClassMetrix.extract(:constants, :class_methods)
            .expand_hashes
            .to_markdown
 
+# Hash expansion (main rows only - default)
+ClassMetrix.extract(:class_methods)
+           .from([ServiceClass])
+           .expand_hashes
+           .to_markdown
+
+# Show only key rows (detailed view)
+ClassMetrix.extract(:class_methods)
+           .from([ServiceClass])
+           .expand_hashes
+           .show_only_keys
+           .to_markdown
+
+# Show both main and key rows
+ClassMetrix.extract(:class_methods)
+           .from([ServiceClass])
+           .expand_hashes
+           .show_expanded_details
+           .to_markdown
+
 # Error handling for robust extraction
 ClassMetrix.extract(:class_methods)
            .from([ClassWithErrors])
@@ -140,7 +160,10 @@ ClassMetrix.extract(:constants)
 - `.include_inherited` - Include parent class behaviors
 - `.include_modules` - Include module behaviors  
 - `.include_all` - Include inherited + modules
-- `.expand_hashes` - Expand hash values into sub-rows
+- `.expand_hashes` - Expand hash values (shows main rows by default)
+- `.show_only_main` - Show only main rows (collapsed hashes) - **Default**
+- `.show_only_keys` - Show only key rows (expanded details)
+- `.show_expanded_details` - Show both main and key rows
 - `.handle_errors` - Graceful error handling
 - `.to_markdown(file)` - Generate markdown output
 - `.to_csv(file)` - Generate CSV output

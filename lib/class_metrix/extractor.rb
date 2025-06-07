@@ -19,6 +19,8 @@ module ClassMetrix
       @include_inherited = false
       @include_modules = false
       @show_source = false
+      @hide_main_row = false
+      @hide_key_rows = true # Default: show only main rows
     end
 
     def from(classes)
@@ -68,6 +70,36 @@ module ClassMetrix
       self
     end
 
+    # Hash expansion display options
+    def show_only_main
+      @hide_main_row = false
+      @hide_key_rows = true
+      self
+    end
+
+    def show_only_keys
+      @hide_main_row = true
+      @hide_key_rows = false
+      self
+    end
+
+    def show_expanded_details
+      @hide_main_row = false
+      @hide_key_rows = false
+      self
+    end
+
+    # Lower-level options (for advanced usage)
+    def hide_main_row
+      @hide_main_row = true
+      self
+    end
+
+    def hide_key_rows
+      @hide_key_rows = true
+      self
+    end
+
     def to_markdown(filename = nil, **options)
       data = extract_all_data
 
@@ -81,7 +113,9 @@ module ClassMetrix
         show_classes: true,
         show_extraction_info: true,
         table_style: :standard,
-        summary_style: :grouped
+        summary_style: :grouped,
+        hide_main_row: @hide_main_row,
+        hide_key_rows: @hide_key_rows
       }.merge(options)
 
       formatted = MarkdownFormatter.new(data, @expand_hashes, format_options).format
@@ -100,7 +134,9 @@ module ClassMetrix
         quote_char: '"',
         flatten_hashes: true,
         null_value: "",
-        comment_char: "#"
+        comment_char: "#",
+        hide_main_row: @hide_main_row,
+        hide_key_rows: @hide_key_rows
       }.merge(options)
 
       formatted = CsvFormatter.new(data, @expand_hashes, format_options).format

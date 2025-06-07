@@ -239,6 +239,7 @@ RSpec.describe ClassMetrix::Extractor do
                             .from([TestUser, TestAdmin])
                             .filter(/CONFIG_HASH/)
                             .expand_hashes
+                            .show_expanded_details
                             .to_markdown
 
         expect(result).to include("CONFIG_HASH")  # Main hash row
@@ -367,6 +368,7 @@ RSpec.describe ClassMetrix::Extractor do
                             .from([TestUser, TestAdmin])
                             .filter(/config$/)
                             .expand_hashes
+                            .show_expanded_details
                             .handle_errors
                             .to_markdown
 
@@ -473,6 +475,7 @@ RSpec.describe ClassMetrix::Extractor do
                             .from([TestUser, TestAdmin])
                             .filter(/config/)
                             .expand_hashes
+                            .show_expanded_details
                             .handle_errors
                             .to_markdown
 
@@ -499,6 +502,133 @@ RSpec.describe ClassMetrix::Extractor do
           expect(result).to include("parent_method")         # Inherited method
           expect(result).to include("module_method")         # Module method
         end
+      end
+    end
+
+    context "hash expansion modes" do
+      class HashTestClass
+        CONFIG = { timeout: 30, ssl: true, retries: 3 }
+
+        def self.database_config
+          { host: "localhost", port: 5432, ssl: true }
+        end
+      end
+
+      it "shows only main rows by default (new default behavior)" do
+        result = ClassMetrix.extract(:constants, :class_methods)
+                            .from([HashTestClass])
+                            .expand_hashes
+                            .to_markdown
+
+        # Should contain main rows
+        expect(result).to include("CONFIG")
+        expect(result).to include("database_config")
+        expect(result).to include("{:timeout=>30, ...}")
+
+        # Should NOT contain key rows by default
+        expect(result).not_to include("CONFIG.timeout")
+        expect(result).not_to include("CONFIG.ssl")
+        expect(result).not_to include("CONFIG.retries")
+        expect(result).not_to include("database_config.host")
+        expect(result).not_to include("database_config.port")
+      end
+
+      it "shows both main and key rows when explicitly requested" do
+        result = ClassMetrix.extract(:constants, :class_methods)
+                            .from([HashTestClass])
+                            .expand_hashes
+                            .show_expanded_details
+                            .to_markdown
+
+        # Should contain main rows
+        expect(result).to include("CONFIG")
+        expect(result).to include("database_config")
+        expect(result).to include("{:timeout=>30, ...}")
+
+        # Should contain key rows
+        expect(result).to include("CONFIG.timeout")
+        expect(result).to include("CONFIG.ssl")
+        expect(result).to include("CONFIG.retries")
+        expect(result).to include("database_config.host")
+        expect(result).to include("database_config.port")
+        expect(result).to include("database_config.ssl")
+      end
+
+      it "shows only main rows when using show_only_main" do
+        result = ClassMetrix.extract(:constants, :class_methods)
+                            .from([HashTestClass])
+                            .expand_hashes
+                            .show_only_main
+                            .to_markdown
+
+        # Should contain main rows
+        expect(result).to include("CONFIG")
+        expect(result).to include("database_config")
+        expect(result).to include("{:timeout=>30, ...}")
+
+        # Should not contain key rows
+        expect(result).not_to include("CONFIG.timeout")
+        expect(result).not_to include("CONFIG.ssl")
+        expect(result).not_to include("CONFIG.retries")
+        expect(result).not_to include("database_config.host")
+        expect(result).not_to include("database_config.port")
+      end
+
+      it "shows only key rows when using show_only_keys" do
+        result = ClassMetrix.extract(:constants, :class_methods)
+                            .from([HashTestClass])
+                            .expand_hashes
+                            .show_only_keys
+                            .to_markdown
+
+        # Should not contain main rows with full hash display
+        expect(result).not_to include("{:timeout=>30, ...}")
+        expect(result).not_to include("{...}")
+
+        # Should contain key rows
+        expect(result).to include("CONFIG.timeout")
+        expect(result).to include("CONFIG.ssl")
+        expect(result).to include("CONFIG.retries")
+        expect(result).to include("database_config.host")
+        expect(result).to include("database_config.port")
+        expect(result).to include("database_config.ssl")
+      end
+
+      it "supports hide_main_row option directly" do
+        result = ClassMetrix.extract(:constants)
+                            .from([HashTestClass])
+                            .expand_hashes
+                            .show_expanded_details  # First enable both rows
+                            .hide_main_row          # Then hide main row
+                            .to_markdown
+
+        expect(result).not_to include("{:timeout=>30, ...}")
+        expect(result).to include("CONFIG.timeout")
+      end
+
+      it "supports hide_key_rows option directly" do
+        result = ClassMetrix.extract(:constants)
+                            .from([HashTestClass])
+                            .expand_hashes
+                            .show_expanded_details  # First enable both rows
+                            .hide_key_rows          # Then hide key rows (back to default)
+                            .to_markdown
+
+        expect(result).to include("{:timeout=>30, ...}")
+        expect(result).not_to include("CONFIG.timeout")
+      end
+
+      it "doesn't break CSV format when expansion modes are used" do
+        result = ClassMetrix.extract(:constants)
+                            .from([HashTestClass])
+                            .expand_hashes
+                            .show_only_keys
+                            .to_csv
+
+        # Should still generate valid CSV output
+        expect(result).to include("Constant")
+        expect(result).to include("HashTestClass")
+        expect(result).to include("CONFIG")
       end
     end
 
@@ -602,6 +732,7 @@ RSpec.describe ClassMetrix::Extractor do
                           .from([TestUser])
                           .filter(/CONFIG_HASH/)
                           .expand_hashes
+                          .show_expanded_details
                           .to_csv(flatten_hashes: false)
 
       expect(result).to include("CONFIG_HASH")

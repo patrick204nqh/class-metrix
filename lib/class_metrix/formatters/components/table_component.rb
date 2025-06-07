@@ -16,10 +16,14 @@ module ClassMetrix
           @table_style = options.fetch(:table_style, :standard)
           @min_column_width = options.fetch(:min_column_width, 3)
           @max_column_width = options.fetch(:max_column_width, 50)
+          @hide_main_row = options.fetch(:hide_main_row, false)
+          @hide_key_rows = options.fetch(:hide_key_rows, true) # Default: show only main rows
 
           # Initialize helper objects
           @data_extractor = TableDataExtractor.new(@data[:headers])
-          @row_processor = RowProcessor.new(@data_extractor)
+          @row_processor = RowProcessor.new(@data_extractor,
+                                            hide_main_row: @hide_main_row,
+                                            hide_key_rows: @hide_key_rows)
           @width_calculator = ColumnWidthCalculator.new(
             table_style: @table_style,
             min_column_width: @min_column_width,
