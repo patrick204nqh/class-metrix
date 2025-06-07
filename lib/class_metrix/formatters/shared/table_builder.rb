@@ -63,7 +63,7 @@ module ClassMetrix
         private
 
         def process_rows_for_expansion(headers)
-          expanded_rows = [] #: Array[Array[String]]
+          expanded_rows = [] # : Array[Array[String]]
           expandable_count = 0
 
           @data[:rows].each_with_index do |row, index|
@@ -89,6 +89,7 @@ module ClassMetrix
 
           # Only consider real Hash objects as expandable
           return false if values.nil?
+
           result = values.any? { |cell| cell.is_a?(Hash) && cell.instance_of?(Hash) }
           @logger.log_decision("Row expandable", "#{result ? "Has" : "No"} real Hash objects", :detailed)
           result
@@ -162,7 +163,7 @@ module ClassMetrix
         end
 
         def build_expanded_row_set(row, behavior_name, values, all_hash_keys)
-          expanded_rows = [] #: Array[Array[String]]
+          expanded_rows = [] # : Array[Array[String]]
 
           # Add main row if configured to show
           expanded_rows << build_main_row(row, behavior_name, values) if should_show_main_row?
@@ -233,7 +234,7 @@ module ClassMetrix
 
         def collect_all_hash_keys(rows, _headers)
           value_start_idx = value_start_index
-          all_keys = {} #: Hash[String, Set[String]] # behavior_name => Set of keys
+          all_keys = {} # : Hash[String, Set[String]] # behavior_name => Set of keys
           total_hash_count = 0
 
           rows.each_with_index do |row, index|

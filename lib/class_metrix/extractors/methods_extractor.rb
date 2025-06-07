@@ -115,7 +115,7 @@ module ClassMetrix
     end
 
     def get_all_singleton_modules(klass)
-      modules = [] #: Array[Module]
+      modules = [] # : Array[Module]
       modules.concat(klass.singleton_class.included_modules)
 
       if @options[:include_inherited]

@@ -16,7 +16,7 @@ module ClassMetrix
     def format
       return "" if @data[:headers].empty? || @data[:rows].empty?
 
-      output = [] #: Array[String]
+      output = [] # : Array[String]
 
       # Add header sections (title, classes, extraction info)
       if @options.fetch(:show_metadata, true)
@@ -77,7 +77,7 @@ module ClassMetrix
 
       widths = calculate_column_widths(headers, rows)
 
-      output = [] #: Array[String]
+      output = [] # : Array[String]
       output << build_header_row(headers, widths)
       output << build_separator_row(widths)
       output.concat(build_data_rows(rows, headers, widths))

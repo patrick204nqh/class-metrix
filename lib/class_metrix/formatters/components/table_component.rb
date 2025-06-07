@@ -22,9 +22,9 @@ module ClassMetrix
           # Initialize helper objects
           @data_extractor = TableDataExtractor.new(@data[:headers])
           @row_processor = RowProcessor.new(@data_extractor, {
-                                            hide_main_row: @hide_main_row,
-                                            hide_key_rows: @hide_key_rows
-                                          })
+                                              hide_main_row: @hide_main_row,
+                                              hide_key_rows: @hide_key_rows
+                                            })
           @width_calculator = ColumnWidthCalculator.new(
             table_style: @table_style,
             min_column_width: @min_column_width,

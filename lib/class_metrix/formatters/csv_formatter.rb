@@ -15,7 +15,7 @@ module ClassMetrix
     def format
       return "" if @data[:headers].empty? || @data[:rows].empty?
 
-      output_lines = [] #: Array[String]
+      output_lines = [] # : Array[String]
 
       # Add CSV header comments
       if @options.fetch(:show_metadata, true)
@@ -65,7 +65,7 @@ module ClassMetrix
 
       return [] if headers.empty?
 
-      output = [] #: Array[String]
+      output = [] # : Array[String]
       separator = @options.fetch(:separator, ",")
       quote_char = @options.fetch(:quote_char, '"')
 

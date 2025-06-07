@@ -25,7 +25,7 @@ module ClassMetrix
           end
 
           def process_expanded_rows(rows)
-            expanded_rows = [] #: Array[Array[String]]
+            expanded_rows = [] # : Array[Array[String]]
 
             rows.each do |row|
               if @data_extractor.row_has_expandable_hash?(row)
@@ -60,7 +60,7 @@ module ClassMetrix
           end
 
           def build_expanded_rows(row_data, all_hash_keys, original_row)
-            expanded_rows = [] #: Array[Array[String]]
+            expanded_rows = [] # : Array[Array[String]]
 
             # Add main row if configured to show
             expanded_rows << build_main_expanded_row(row_data) if should_show_main_row?

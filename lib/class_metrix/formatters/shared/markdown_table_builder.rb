@@ -36,7 +36,7 @@ module ClassMetrix
         end
 
         def build_expanded_row_structure(row, behavior_name, values, all_hash_keys)
-          expanded_rows = [] #: Array[Array[String]]
+          expanded_rows = [] # : Array[Array[String]]
 
           # Add main row if configured to show
           expanded_rows << build_main_row(row, behavior_name, values) if should_show_main_row?

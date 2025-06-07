@@ -20,7 +20,7 @@ module ClassMetrix
       # Build headers: ["Type", "Behavior", "Class1", "Class2", ...]
       headers = %w[Type Behavior] + @classes.map(&:name)
 
-      all_rows = [] #: Array[Array[untyped]]
+      all_rows = [] # : Array[Array[untyped]]
 
       @types.each do |type|
         type_data = extract_single_type(type)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Steepfile for ClassMetrix gem
 D = Steep::Diagnostic
 
