@@ -5,12 +5,13 @@ require_relative "methods_extractor"
 
 module ClassMetrix
   class MultiTypeExtractor
-    def initialize(classes, types, filters, modules, handle_errors)
+    def initialize(classes, types, filters, modules, handle_errors, options = {})
       @classes = classes
       @types = types
       @filters = filters
       @modules = modules
       @handle_errors = handle_errors
+      @options = options
     end
 
     def extract
@@ -42,9 +43,9 @@ module ClassMetrix
     def extract_single_type(type)
       case type
       when :constants
-        ConstantsExtractor.new(@classes, @filters, @handle_errors).extract
+        ConstantsExtractor.new(@classes, @filters, @handle_errors, @options).extract
       when :class_methods
-        MethodsExtractor.new(@classes, @filters, @handle_errors).extract
+        MethodsExtractor.new(@classes, @filters, @handle_errors, @options).extract
       else
         { headers: [], rows: [] }
       end

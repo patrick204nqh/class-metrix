@@ -411,7 +411,3 @@ This gem is available as open source under the terms of the [MIT License](LICENS
 - [Examples](examples/)
 - [Build Guide](BUILD_GUIDE.md)
 - [Changelog](CHANGELOG.md)
-
----
-
-**Built with ❤️ for Ruby developers who love clean, maintainable code.**

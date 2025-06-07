@@ -16,6 +16,9 @@ module ClassMetrix
       @expand_hashes = false
       @handle_errors = false
       @modules = []
+      @include_inherited = false
+      @include_modules = false
+      @show_source = false
     end
 
     def from(classes)
@@ -43,10 +46,31 @@ module ClassMetrix
       self
     end
 
+    # Inheritance and module inclusion options
+    def include_inherited
+      @include_inherited = true
+      self
+    end
+
+    def include_modules
+      @include_modules = true
+      self
+    end
+
+    def show_source
+      @show_source = true
+      self
+    end
+
+    def include_all
+      @include_inherited = true
+      @include_modules = true
+      self
+    end
+
     def to_markdown(filename = nil, **options)
       data = extract_all_data
 
-      # Merge default options with passed options
       format_options = {
         extraction_types: @types,
         show_missing_summary: false,
@@ -69,7 +93,6 @@ module ClassMetrix
     def to_csv(filename = nil, **options)
       data = extract_all_data
 
-      # Merge default options with passed options
       format_options = {
         extraction_types: @types,
         show_metadata: true,
@@ -89,7 +112,6 @@ module ClassMetrix
     private
 
     def extract_all_data
-      # Handle single or multiple extraction types
       if @types.size == 1
         extract_single_type(@types.first)
       else
@@ -98,24 +120,30 @@ module ClassMetrix
     end
 
     def extract_single_type(type)
-      extractor = get_extractor(type)
-      extractor.extract
+      get_extractor(type).extract
     end
 
     def extract_multiple_types
-      # Combine multiple extraction types into one table
-      MultiTypeExtractor.new(@classes, @types, @filters, @modules, @handle_errors).extract
+      MultiTypeExtractor.new(@classes, @types, @filters, @modules, @handle_errors, extraction_options).extract
     end
 
     def get_extractor(type)
       case type
       when :constants
-        ConstantsExtractor.new(@classes, @filters, @handle_errors)
+        ConstantsExtractor.new(@classes, @filters, @handle_errors, extraction_options)
       when :class_methods
-        MethodsExtractor.new(@classes, @filters, @handle_errors)
+        MethodsExtractor.new(@classes, @filters, @handle_errors, extraction_options)
       else
         raise ArgumentError, "Unknown extraction type: #{type}"
       end
+    end
+
+    def extraction_options
+      {
+        include_inherited: @include_inherited,
+        include_modules: @include_modules,
+        show_source: @show_source
+      }
     end
   end
 end
