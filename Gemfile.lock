@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    class-metrix (0.1.2)
+    class-metrix (1.0.0)
 
 GEM
   remote: https://rubygems.org/
