@@ -5,10 +5,12 @@
 
 **ClassMetrix** is a Ruby gem that extracts and compares class behaviors (constants, class methods, and more) across multiple classes, generating clean markdown reports for analysis, documentation, and compliance auditing.
 
+> **Why "Metrix"?** Short for "metrics" - measuring and analyzing class behaviors.
+
 ## ✨ Features
 
 - **🔍 Multi-Type Extraction**: Constants, class methods, and more
-- **📊 Hash Expansion**: Expand hash values into readable sub-rows  
+- **📊 Hash Expansion**: Expand hash values into readable sub-rows
 - **🛡️ Error Handling**: Graceful handling of missing methods and constants
 - **🐛 Debug Mode**: Detailed logging for troubleshooting and analysis
 - **📝 Rich Markdown Reports**: Professional reports with configurable components
@@ -30,7 +32,7 @@ ClassMetrix.extract(:constants, :class_methods)
   .filter(/config$/)
   .expand_hashes
   .handle_errors
-  .to_markdown("audit_report.md", 
+  .to_markdown("audit_report.md",
     title: "Service Configuration Audit",
     footer_style: :detailed,
     show_missing_summary: true
@@ -40,7 +42,7 @@ ClassMetrix.extract(:constants, :class_methods)
 ClassMetrix.extract(:constants)
   .from([DatabaseConfig, RedisConfig])
   .expand_hashes
-  .to_csv("config_analysis.csv", 
+  .to_csv("config_analysis.csv",
     title: "Configuration Analysis",
     flatten_hashes: true
   )
@@ -65,6 +67,7 @@ gem install class-metrix
 ### Basic Extraction
 
 #### Constants
+
 ```ruby
 # Extract constants from multiple classes
 ClassMetrix.extract(:constants)
@@ -79,6 +82,7 @@ ClassMetrix.extract(:constants)
 ```
 
 #### Class Methods
+
 ```ruby
 # Extract class method results
 ClassMetrix.extract(:class_methods)
@@ -94,6 +98,7 @@ ClassMetrix.extract(:class_methods)
 ```
 
 #### Multi-Type Extraction
+
 ```ruby
 # Combine multiple extraction types in one table
 ClassMetrix.extract(:constants, :class_methods)
@@ -110,6 +115,7 @@ ClassMetrix.extract(:constants, :class_methods)
 ### Advanced Features
 
 #### Hash Expansion
+
 ```ruby
 # Expand hash values into readable sub-rows
 ClassMetrix.extract(:constants)
@@ -127,6 +133,7 @@ ClassMetrix.extract(:constants)
 ```
 
 #### Error Handling
+
 ```ruby
 # Handle missing methods and constants gracefully
 ClassMetrix.extract(:class_methods)
@@ -144,6 +151,7 @@ ClassMetrix.extract(:class_methods)
 ```
 
 #### Filtering
+
 ```ruby
 # Filter behaviors by pattern
 ClassMetrix.extract(:constants)
@@ -159,6 +167,7 @@ ClassMetrix.extract(:class_methods)
 ```
 
 #### Debug Mode
+
 ```ruby
 # Enable detailed logging for troubleshooting
 ClassMetrix.extract(:constants, :class_methods)
@@ -185,17 +194,20 @@ ClassMetrix.extract(:constants)
 ```
 
 **Debug Levels:**
+
 - **`:basic`** (default) - Key decisions and summaries only
-- **`:detailed`** - More context and intermediate steps  
+- **`:detailed`** - More context and intermediate steps
 - **`:verbose`** - Full details including individual value processing
 
 **Debug Features:**
+
 - **Safe Object Inspection**: Handles objects with problematic `inspect`/`to_s` methods
 - **Hash Detection Analysis**: Shows why objects are/aren't treated as expandable hashes
 - **Smart Logging**: Reduces spam by grouping related operations and focusing on key decisions
 - **Error Diagnostics**: Detailed error context for troubleshooting
 
 #### CSV Output
+
 ```ruby
 # Basic CSV output
 ClassMetrix.extract(:constants)
@@ -229,6 +241,7 @@ ClassMetrix.extract(:class_methods)
 ClassMetrix offers extensive configuration options for customizing report generation:
 
 ### Markdown Report Options
+
 ```ruby
 ClassMetrix.extract(:constants)
   .from([User, Admin])
@@ -236,30 +249,31 @@ ClassMetrix.extract(:constants)
     # File and title
     "report.md",
     title: "Custom Report Title",
-    
+
     # Content sections
     show_metadata: true,          # Show title and report info
     show_classes: true,           # Show "Classes Analyzed" section
     show_extraction_info: true,   # Show "Extraction Types" section
     show_missing_summary: false,  # Show missing behaviors summary
-    
+
     # Footer configuration
     show_footer: true,            # Show footer
     footer_style: :detailed,      # :default, :minimal, :detailed
     show_timestamp: true,         # Include generation timestamp
     custom_footer: "Custom note", # Custom footer message
-    
+
     # Table formatting
     table_style: :standard,       # :standard, :compact, :wide
     min_column_width: 3,          # Minimum column width
     max_column_width: 50,         # Maximum column width (for :compact style)
-    
+
     # Missing behaviors analysis
     summary_style: :grouped       # :grouped, :flat, :detailed
   )
 ```
 
 ### CSV Output Options
+
 ```ruby
 ClassMetrix.extract(:constants)
   .from([User, Admin])
@@ -267,16 +281,16 @@ ClassMetrix.extract(:constants)
     # File and title
     "report.csv",
     title: "Custom CSV Report",
-    
+
     # Content options
     show_metadata: true,          # Show comment headers
     comment_char: "#",            # Comment character for metadata
-    
+
     # CSV formatting
     separator: ",",               # Column separator (comma, semicolon, tab)
     quote_char: '"',              # Quote character
     null_value: "",               # Value for nil/missing data
-    
+
     # Hash handling
     flatten_hashes: true,         # Flatten hashes into separate columns
                                   # false = expand into sub-rows
@@ -286,20 +300,26 @@ ClassMetrix.extract(:constants)
 ### Footer Styles
 
 #### Default Footer
+
 ```markdown
 ---
-*Report generated by ClassMetrix gem*
+
+_Report generated by ClassMetrix gem_
 ```
 
 #### Minimal Footer
+
 ```markdown
 ---
-*Generated by ClassMetrix*
+
+_Generated by ClassMetrix_
 ```
 
 #### Detailed Footer
+
 ```markdown
 ---
+
 ## Report Information
 
 - **Generated by**: [ClassMetrix gem](https://github.com/patrick204nqh/class-metrix)
@@ -310,18 +330,22 @@ ClassMetrix.extract(:constants)
 ### Missing Behaviors Styles
 
 #### Grouped (Default)
+
 ```markdown
 ## Missing Behaviors Summary
 
 ### DatabaseConfig
+
 - `redis_config` - 🚫 Not defined
 - `cache_timeout` - 🚫 No method
 
-### RedisConfig  
+### RedisConfig
+
 - `db_config` - 🚫 Not defined
 ```
 
 #### Flat
+
 ```markdown
 ## Missing Behaviors
 
@@ -331,22 +355,26 @@ ClassMetrix.extract(:constants)
 ```
 
 #### Detailed
+
 ```markdown
 ## Missing Behaviors Analysis
 
 **Summary**: 3 missing behaviors across 2 classes
 
 ### 🚫 Not (2 items)
+
 - **DatabaseConfig**: `redis_config` - 🚫 Not defined
 - **RedisConfig**: `db_config` - 🚫 Not defined
 
 ### 🚫 No (1 items)
+
 - **DatabaseConfig**: `cache_timeout` - 🚫 No method
 ```
 
 ## 🎯 Real-World Examples
 
 ### Microservices Configuration Audit
+
 ```ruby
 # Audit configuration consistency across services
 services = [DatabaseService, RedisService, S3Service, AuthService]
@@ -365,6 +393,7 @@ ClassMetrix.extract(:constants, :class_methods)
 ```
 
 ### Policy Classes Comparison
+
 ```ruby
 # Compare authorization policies
 policies = [UserPolicy, AdminPolicy, ModeratorPolicy]
@@ -379,6 +408,7 @@ ClassMetrix.extract(:constants)
 ```
 
 ### API Version Compatibility
+
 ```ruby
 # Check API compatibility across versions
 apis = [V1::UsersAPI, V2::UsersAPI, V3::UsersAPI]
@@ -401,7 +431,7 @@ ClassMetrix uses a modular component architecture for maximum flexibility:
 ```
 MarkdownFormatter
 ├── HeaderComponent      # Title, classes, extraction info
-├── TableComponent       # Table formatting and hash expansion  
+├── TableComponent       # Table formatting and hash expansion
 ├── MissingBehaviorsComponent  # Missing behavior analysis
 └── FooterComponent      # Footer with various styles
 ```
@@ -428,7 +458,7 @@ ruby examples/advanced/hash_expansion.rb
 
 ## 📋 Requirements
 
-- Ruby 2.7+ 
+- Ruby 2.7+
 - No runtime dependencies (pure Ruby implementation)
 
 ## 🤝 Contributing
