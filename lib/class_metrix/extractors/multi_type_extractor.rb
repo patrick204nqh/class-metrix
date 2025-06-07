@@ -5,13 +5,13 @@ require_relative "methods_extractor"
 
 module ClassMetrix
   class MultiTypeExtractor
-    def initialize(classes, types, filters, modules, handle_errors, options = {})
+    def initialize(classes, types, filters, extraction_config = {})
       @classes = classes
       @types = types
       @filters = filters
-      @modules = modules
-      @handle_errors = handle_errors
-      @options = options
+      @modules = extraction_config[:modules] || []
+      @handle_errors = extraction_config[:handle_errors] || false
+      @options = extraction_config[:options] || {}
     end
 
     def extract

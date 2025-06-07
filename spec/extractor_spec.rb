@@ -507,7 +507,7 @@ RSpec.describe ClassMetrix::Extractor do
 
     context "hash expansion modes" do
       class HashTestClass
-        CONFIG = { timeout: 30, ssl: true, retries: 3 }
+        CONFIG = { timeout: 30, ssl: true, retries: 3 }.freeze
 
         def self.database_config
           { host: "localhost", port: 5432, ssl: true }
@@ -758,8 +758,8 @@ RSpec.describe ClassMetrix::Extractor do
       BOOLEAN_TRUE = true
       BOOLEAN_FALSE = false
       NIL_VALUE = nil
-      ARRAY_VALUE = [1, 2, 3]
-      HASH_VALUE = { key: "value" }
+      ARRAY_VALUE = [1, 2, 3].freeze
+      HASH_VALUE = { key: "value" }.freeze
 
       def self.string_method
         "method_result"

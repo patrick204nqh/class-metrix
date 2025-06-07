@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Ruby: Run Current File",
+      "type": "ruby_lsp",
+      "request": "launch",
+      "program": "${file}"
+    },
+    {
+      "name": "Ruby: Run with Arguments",
+      "type": "ruby_lsp",
+      "request": "launch",
+      "program": "${file}",
+      "args": []
+    },
+    {
+      "name": "RSpec: Debug Current File",
+      "type": "ruby_lsp",
+      "request": "launch",
+      "program": "bundle",
+      "args": ["exec", "rspec", "${file}"]
+    },
+    {
+      "name": "RSpec: Debug All Tests",
+      "type": "ruby_lsp",
+      "request": "launch",
+      "program": "bundle",
+      "args": ["exec", "rspec"]
+    }
+  ]
+}

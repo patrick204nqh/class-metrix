@@ -88,7 +88,7 @@ module ClassMetrix
           @logger.log_hash_detection_summary(values)
 
           # Only consider real Hash objects as expandable
-          result = values.any? { |cell| cell.is_a?(Hash) && cell.class == Hash }
+          result = values.any? { |cell| cell.is_a?(Hash) && cell.instance_of?(Hash) }
           @logger.log_decision("Row expandable", "#{result ? "Has" : "No"} real Hash objects", :detailed)
           result
         end
@@ -146,7 +146,7 @@ module ClassMetrix
 
           values.each_with_index do |value, index|
             # Be more strict about what we consider a "hash"
-            if value.is_a?(Hash) && value.class == Hash && value.respond_to?(:keys)
+            if value.is_a?(Hash) && value.instance_of?(Hash) && value.respond_to?(:keys)
               hash_count += 1
               keys = @logger.safe_keys(value)
               @logger.log("Value #{index} is a real Hash with keys: #{keys}", :detailed)
@@ -252,7 +252,7 @@ module ClassMetrix
 
           values.each_with_index do |value, index|
             # Be more strict about what we consider a "hash"
-            if value.is_a?(Hash) && value.class == Hash && value.respond_to?(:keys)
+            if value.is_a?(Hash) && value.instance_of?(Hash) && value.respond_to?(:keys)
               hash_count += 1
               keys = @logger.safe_keys(value)
               @logger.log("Behavior '#{behavior_name}' value #{index}: Hash with keys #{keys}", :verbose)

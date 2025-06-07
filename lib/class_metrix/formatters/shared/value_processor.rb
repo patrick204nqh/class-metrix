@@ -41,14 +41,15 @@ module ClassMetrix
           logger = Utils::DebugLogger.new("ValueProcessor", debug_mode, debug_level)
           logger.log_value_details(value)
 
+          process_csv_value_by_type(value, logger, null_value)
+        end
+
+        def self.process_csv_value_by_type(value, logger, null_value)
           case value
           when Hash
-            logger.log("Processing Hash for CSV with keys: #{logger.safe_keys(value)}", :detailed)
-            # For non-flattened CSV, represent hash as JSON-like string
-            logger.safe_inspect(value)
+            process_hash_for_csv(value, logger)
           when Array
-            logger.log("Processing Array for CSV with #{logger.safe_length(value)} elements", :detailed)
-            value.join("; ") # Use semicolon to avoid CSV comma conflicts
+            process_array_for_csv(value, logger)
           when true
             "TRUE"
           when false
@@ -56,16 +57,33 @@ module ClassMetrix
           when nil
             null_value
           when String
-            # Clean up emoji for CSV compatibility
-            clean_value = value.gsub(/🚫|⚠️|✅|❌/, "").strip
-            clean_value.empty? ? null_value : clean_value
+            process_string_for_csv(value, null_value)
           else
-            logger.log(
-              "Processing other type for CSV (#{logger.safe_class(value)}): #{logger.safe_truncate(logger.safe_inspect(value),
-                                                                                                   100)}", :detailed
-            )
-            logger.safe_to_s(value)
+            process_other_for_csv(value, logger)
           end
+        end
+
+        def self.process_hash_for_csv(value, logger)
+          logger.log("Processing Hash for CSV with keys: #{logger.safe_keys(value)}", :detailed)
+          logger.safe_inspect(value)
+        end
+
+        def self.process_array_for_csv(value, logger)
+          logger.log("Processing Array for CSV with #{logger.safe_length(value)} elements", :detailed)
+          value.join("; ") # Use semicolon to avoid CSV comma conflicts
+        end
+
+        def self.process_string_for_csv(value, null_value)
+          clean_value = value.gsub(/🚫|⚠️|✅|❌/, "").strip
+          clean_value.empty? ? null_value : clean_value
+        end
+
+        def self.process_other_for_csv(value, logger)
+          logger.log(
+            "Processing other type for CSV (#{logger.safe_class(value)}): #{logger.safe_truncate(logger.safe_inspect(value),
+                                                                                                 100)}", :detailed
+          )
+          logger.safe_to_s(value)
         end
 
         def self.safe_hash_lookup(hash, key, debug_mode: false, debug_level: :basic)

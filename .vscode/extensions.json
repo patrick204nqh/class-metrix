@@ -1,0 +1,28 @@
+{  "recommendations": [
+    // Ruby language support
+    "shopify.ruby-lsp",
+    "castwide.solargraph",
+
+    // Alternative Ruby support (choose one of the above)
+    // "rebornix.ruby",
+
+    // Markdown support
+    "esbenp.prettier-vscode",
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+
+    // General productivity
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "editorconfig.editorconfig",
+
+    // Git integration
+    "eamodio.gitlens",
+
+    // Additional helpful extensions
+    "ms-vscode.test-adapter-converter",
+    "hbenl.vscode-test-explorer",
+    "formulahendry.auto-rename-tag",
+    "bradlc.vscode-tailwindcss"
+  ]
+}

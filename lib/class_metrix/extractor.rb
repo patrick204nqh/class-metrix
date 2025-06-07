@@ -184,7 +184,12 @@ module ClassMetrix
 
     def extract_multiple_types
       @logger&.log("Extracting multiple types: #{@types}")
-      MultiTypeExtractor.new(@classes, @types, @filters, @modules, @handle_errors, extraction_options).extract
+      extraction_config = {
+        modules: @modules,
+        handle_errors: @handle_errors,
+        options: extraction_options
+      }
+      MultiTypeExtractor.new(@classes, @types, @filters, extraction_config).extract
     end
 
     def get_extractor(type)

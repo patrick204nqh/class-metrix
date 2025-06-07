@@ -71,7 +71,7 @@ module ClassMetrix
 
       def safe_length(value)
         value.length
-      rescue StandardError => e
+      rescue StandardError
         "[length failed]"
       end
 
@@ -105,7 +105,7 @@ module ClassMetrix
 
         prefix = index ? "Value #{index}" : "Value"
         is_hash = value.is_a?(Hash)
-        is_real_hash = value.is_a?(Hash) && value.class == Hash
+        is_real_hash = value.is_a?(Hash) && value.instance_of?(Hash)
 
         return unless is_hash
 
@@ -132,17 +132,17 @@ module ClassMetrix
           next unless value.is_a?(Hash)
 
           hash_count += 1
-          if value.class == Hash
+          if value.instance_of?(Hash)
             real_hash_count += 1
           else
             anomaly_count += 1
           end
         end
 
-        return unless hash_count > 0
+        return unless hash_count.positive?
 
         log("Hash detection summary: #{real_hash_count} real hashes, #{anomaly_count} hash-like objects")
-        log_anomaly("Found #{anomaly_count} hash-like proxy objects") if anomaly_count > 0
+        log_anomaly("Found #{anomaly_count} hash-like proxy objects") if anomaly_count.positive?
       end
 
       def enabled?

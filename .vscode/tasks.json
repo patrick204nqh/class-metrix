@@ -1,0 +1,99 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Rubocop: Check",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "rubocop"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        {
+          "owner": "rubocop",
+          "fileLocation": "absolute",
+          "pattern": [
+            {
+              "regexp": "^([^:]+):(\\d+):(\\d+): ([A-Z]): (.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "message": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Rubocop: Fix",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "rubocop", "-A"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Rubocop: Fix Current File",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "rubocop", "-A", "${file}"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "RSpec: Run All Tests",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "rspec"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "RSpec: Run Current File",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["exec", "rspec", "${file}"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Bundle Install",
+      "type": "shell",
+      "command": "bundle",
+      "args": ["install"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}
