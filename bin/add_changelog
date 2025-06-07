@@ -1,0 +1,42 @@
+#!/bin/bash
+# Script to help add changelog entries
+
+# Usage: ./scripts/add_changelog_entry.sh "feature" "Added new JSON output format"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <type> <description>"
+    echo "Types: added, changed, deprecated, removed, fixed, security"
+    echo "Example: $0 added 'New JSON output format support'"
+    exit 1
+fi
+
+TYPE=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+DESCRIPTION="$2"
+
+# Find the line number of [Unreleased] section
+UNRELEASED_LINE=$(grep -n "## \[Unreleased\]" CHANGELOG.md | cut -d: -f1)
+
+if [ -z "$UNRELEASED_LINE" ]; then
+    echo "Error: Could not find [Unreleased] section in CHANGELOG.md"
+    exit 1
+fi
+
+# Check if the section type already exists
+SECTION_EXISTS=$(sed -n "${UNRELEASED_LINE},/^## \[/p" CHANGELOG.md | grep -c "^### ${TYPE}")
+
+if [ "$SECTION_EXISTS" -eq 0 ]; then
+    # Add new section
+    INSERT_LINE=$((UNRELEASED_LINE + 2))
+    sed -i "${INSERT_LINE}i\\
+\\
+### ${TYPE}\\
+- ${DESCRIPTION}" CHANGELOG.md
+else
+    # Add to existing section
+    SECTION_LINE=$(sed -n "${UNRELEASED_LINE},/^## \[/p" CHANGELOG.md | grep -n "^### ${TYPE}" | cut -d: -f1)
+    SECTION_LINE=$((UNRELEASED_LINE + SECTION_LINE))
+    sed -i "${SECTION_LINE}a\\
+- ${DESCRIPTION}" CHANGELOG.md
+fi
+
+echo "Added to CHANGELOG.md: [${TYPE}] ${DESCRIPTION}"
