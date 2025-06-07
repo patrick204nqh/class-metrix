@@ -1,0 +1,57 @@
+# Utility classes
+module ClassMetrix
+  module Utils
+    class ClassResolver
+      def self.normalize_classes: (Array[Class | String] classes) -> Array[Class]
+      def self.resolve_class: (Class | String klass) -> Class
+      def self.string_to_class: (String class_name) -> Class
+    end
+
+    class DebugLogger
+      LEVELS: Hash[Symbol, Integer]
+
+      @component_name: String
+      @debug_mode: bool
+      @level: Integer
+
+      def initialize: (String component_name, bool debug_mode, Symbol debug_level) -> void
+      def log: (String message, ?Symbol level) -> void
+      def enabled?: () -> bool
+      def log_safe_operation: (String operation_name, ?Symbol level) { () -> untyped } -> untyped
+      def log_summary: (String operation, Array[untyped] items) { (untyped item, Integer index) -> void } -> void
+      def log_decision: (String decision, String reason, ?Symbol level) -> void
+      def log_anomaly: (String description) -> void
+      def safe_inspect: (untyped value) -> String
+      def safe_class: (untyped value) -> String
+      def safe_keys: (untyped value) -> String
+      def safe_length: (untyped value) -> String
+      def safe_truncate: (String str, Integer max_length) -> String
+      def safe_to_s: (untyped value) -> String
+      def log_value_details: (untyped value, ?Integer? index, ?Symbol level) -> void
+      def log_hash_detection: (untyped value, ?Integer? index, ?Symbol level) -> void
+      def log_hash_detection_summary: (Array[untyped] values) -> void
+      def set_level: (Symbol level) -> void
+
+      private
+
+      def should_log?: (Symbol level) -> bool
+      def format_message: (String message) -> String
+    end
+  end
+end
+
+# Root level classes for processors
+class ValueProcessor
+  def self.process: (untyped value, ?expand_hashes: bool) -> untyped
+  def self.format_hash: (Hash[untyped, untyped] hash) -> String
+  def self.expand_hash: (Hash[untyped, untyped] hash) -> Array[Hash[Symbol, untyped]]
+  def self.handle_extraction_error: (Exception error) -> String
+  def self.missing_constant: () -> String
+  def self.missing_method: () -> String
+end
+
+# Root level utility class references
+module ClassMetrix
+  class ClassResolver < Utils::ClassResolver
+  end
+end

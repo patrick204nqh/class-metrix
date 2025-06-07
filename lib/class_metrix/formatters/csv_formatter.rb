@@ -15,7 +15,7 @@ module ClassMetrix
     def format
       return "" if @data[:headers].empty? || @data[:rows].empty?
 
-      output_lines = []
+      output_lines = [] #: Array[String]
 
       # Add CSV header comments
       if @options.fetch(:show_metadata, true)
@@ -65,7 +65,7 @@ module ClassMetrix
 
       return [] if headers.empty?
 
-      output = []
+      output = [] #: Array[String]
       separator = @options.fetch(:separator, ",")
       quote_char = @options.fetch(:quote_char, '"')
 
@@ -75,7 +75,7 @@ module ClassMetrix
       csv_rows.each do |row|
         # Ensure all row values are strings and properly quoted
         formatted_row = row.map { |cell| format_csv_cell(cell) }
-        csv_line = CSV.generate_line(formatted_row, col_sep: separator, quote_char: quote_char).chomp
+        csv_line = CSV.generate(col_sep: separator, quote_char: quote_char) { |csv| csv << formatted_row }.chomp
         output << csv_line
       end
 

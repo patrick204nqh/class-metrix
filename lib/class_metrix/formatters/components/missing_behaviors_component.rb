@@ -9,7 +9,7 @@ module ClassMetrix
           @options = options
           @show_missing_summary = options.fetch(:show_missing_summary, false)
           @summary_style = options.fetch(:summary_style, :grouped) # :grouped, :flat, :detailed
-          @missing_behaviors = {}
+          @missing_behaviors = {} #: Hash[String, Hash[String, String]]
         end
 
         def generate
@@ -30,7 +30,7 @@ module ClassMetrix
                           end
 
           # Initialize missing behaviors tracking with hash to store behavior name and error message
-          class_headers.each { |class_name| @missing_behaviors[class_name] = {} }
+          class_headers.each { |class_name| @missing_behaviors[class_name] = {} } #: Hash[String, Hash[String, String]]
 
           @data[:rows].each do |row|
             behavior_name = has_type_column ? row[1] : row[0]
@@ -63,7 +63,7 @@ module ClassMetrix
         end
 
         def generate_grouped_summary
-          output = []
+          output = [] #: Array[String]
 
           output << "## Missing Behaviors Summary"
           output << ""
@@ -84,12 +84,12 @@ module ClassMetrix
         end
 
         def generate_flat_summary
-          output = []
+          output = [] #: Array[String]
 
           output << "## Missing Behaviors"
           output << ""
 
-          all_missing = []
+          all_missing = [] #: Array[String]
           @missing_behaviors.each do |class_name, behaviors_hash|
             behaviors_hash.each do |behavior_name, error_message|
               all_missing << "- **#{class_name}**: `#{behavior_name}` - #{error_message}"
@@ -103,7 +103,7 @@ module ClassMetrix
         end
 
         def generate_detailed_summary
-          output = []
+          output = [] #: Array[String]
 
           total_missing = @missing_behaviors.values.map(&:size).sum
           total_classes = @missing_behaviors.keys.size
@@ -114,7 +114,7 @@ module ClassMetrix
           output << ""
 
           # Group by error type
-          by_error_type = {}
+          by_error_type = {} #: Hash[String, Array[Hash[Symbol, String]]]
           @missing_behaviors.each do |class_name, behaviors_hash|
             behaviors_hash.each do |behavior_name, error_message|
               error_type = error_message.split.first(2).join(" ") # e.g., "🚫 Not", "⚠️ Error:"

@@ -1,0 +1,54 @@
+# Core extractor class that provides the fluent interface
+module ClassMetrix
+  class Extractor
+    @types: Array[Symbol]
+    @classes: Array[Class]
+    @filters: Array[Regexp | String]
+    @expand_hashes: bool
+    @handle_errors: bool
+    @modules: Array[Module]
+    @include_inherited: bool
+    @include_modules: bool
+    @show_source: bool
+    @hide_main_row: bool
+    @hide_key_rows: bool
+    @debug_mode: bool
+    @debug_level: Symbol
+    @logger: ClassMetrix::Utils::DebugLogger?
+
+    def initialize: (*Symbol types) -> void
+
+    # Core configuration methods
+    def from: (Array[Class] classes) -> self
+    def filter: (Regexp | String pattern) -> self
+    def expand_hashes: () -> self
+    def debug: (?Symbol level) -> self
+    def handle_errors: () -> self
+    def modules: (Array[Module] module_list) -> self
+
+    # Inheritance and module inclusion options
+    def include_inherited: () -> self
+    def include_modules: () -> self
+    def show_source: () -> self
+    def include_all: () -> self
+
+    # Hash expansion display options
+    def show_only_main: () -> self
+    def show_only_keys: () -> self
+    def show_expanded_details: () -> self
+    def hide_main_row: () -> self
+    def hide_key_rows: () -> self
+
+    # Output methods
+    def to_markdown: (?String filename) -> String
+    def to_csv: (?String filename) -> String
+
+    private
+
+    def extract_all_data: () -> Hash[Symbol, untyped]
+    def extract_single_type: (Symbol type) -> Hash[Symbol, untyped]
+    def extract_multiple_types: () -> Hash[Symbol, untyped]
+    def get_extractor: (Symbol type) -> (ClassMetrix::ConstantsExtractor | ClassMetrix::MethodsExtractor)
+    def extraction_options: () -> Hash[Symbol, untyped]
+  end
+end

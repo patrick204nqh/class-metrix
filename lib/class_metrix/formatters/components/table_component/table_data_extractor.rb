@@ -37,7 +37,9 @@ module ClassMetrix
           end
 
           def row_has_expandable_hash?(row)
-            row[value_start_index..].any? { |cell| cell.is_a?(Hash) }
+            values = row[value_start_index..] || []
+            return false if values.nil?
+            values.any? { |cell| cell.is_a?(Hash) }
           end
 
           def collect_hash_keys(values)

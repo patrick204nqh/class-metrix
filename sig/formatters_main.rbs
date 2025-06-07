@@ -1,0 +1,20 @@
+# Main formatter classes
+module ClassMetrix
+  class MarkdownFormatter < Formatters::Base::BaseFormatter
+    def initialize: (Hash[Symbol, untyped] data, ?bool expand_hashes, ?Hash[Symbol, untyped] options) -> void
+    def format: () -> String
+
+    private
+
+    def generate_markdown_content: () -> String
+  end
+
+  class CsvFormatter < Formatters::Base::BaseFormatter
+    def initialize: (Hash[Symbol, untyped] data, ?bool expand_hashes, ?Hash[Symbol, untyped] options) -> void
+    def format: () -> String
+
+    private
+
+    def generate_csv_content: () -> String
+  end
+end

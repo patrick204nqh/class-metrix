@@ -1,0 +1,133 @@
+# Component classes for formatters
+module ClassMetrix
+  module Formatters
+    module Components
+      class HeaderComponent < Base::BaseComponent
+        def generate: () -> Array[String]
+        def generate_title: () -> Array[String]
+
+        private
+
+        def generate_title_section: () -> Array[String]
+        def generate_classes_section: () -> Array[String]
+        def generate_extraction_info: () -> Array[String]
+      end
+
+      class TableComponent < Base::BaseComponent
+        def generate: () -> Array[String]
+
+        private
+
+        def process_table_data: () -> Hash[Symbol, untyped]
+        def build_table: (Hash[Symbol, untyped] processed_data) -> Array[String]
+
+        class TableDataExtractor
+          @headers: Array[String]
+
+          def initialize: (Array[String] headers) -> void
+          def behavior_column_index: () -> Integer
+          def value_start_index: () -> Integer
+          def class_headers: () -> Array[String]
+          def has_type_column?: () -> bool
+          def row_has_expandable_hash?: (Array[untyped] row) -> bool
+          def extract_row_data: (Array[untyped] row) -> Hash[Symbol, untyped]
+          def collect_hash_keys: (Array[untyped] values) -> Set[String]
+
+          private
+
+          def determine_hash_presence: (Array[untyped] row) -> bool
+        end
+
+        class RowProcessor
+          @data_extractor: TableDataExtractor
+          @hide_main_row: bool
+          @hide_key_rows: bool
+
+          def initialize: (TableDataExtractor data_extractor, ?Hash[Symbol, untyped] options) -> void
+          def process_simple_rows: (Array[Array[untyped]] rows) -> Array[Array[untyped]]
+          def process_expanded_rows: (Array[Array[untyped]] rows) -> Array[Array[untyped]]
+
+          private
+
+          def process_non_hash_row: (Array[untyped] row) -> Array[untyped]
+          def expand_row: (Array[untyped] row) -> Array[Array[untyped]]
+          def build_expanded_rows: (Hash[Symbol, untyped] row_data, Set[String] all_hash_keys, Array[untyped] original_row) -> Array[Array[untyped]]
+          def should_show_main_row?: () -> bool
+          def should_show_key_rows?: () -> bool
+          def build_main_expanded_row: (Hash[Symbol, untyped] row_data) -> Array[untyped]
+          def build_key_rows: (Set[String] all_hash_keys, Hash[Symbol, untyped] row_data, Array[untyped] original_row) -> Array[Array[untyped]]
+          def build_key_row: (String key, Hash[Symbol, untyped] row_data, Array[untyped] original_row) -> Array[untyped]
+          def process_key_values: (String key, Array[untyped] values, Array[untyped] original_row) -> Array[untyped]
+          def extract_hash_value: (untyped value, String key) -> untyped
+          def handle_non_hash_value: (Array[untyped] original_row, Integer index) -> untyped
+        end
+
+        class ColumnWidthCalculator
+          @table_style: Symbol
+          @min_column_width: Integer
+          @max_column_width: Integer
+
+          def initialize: (?table_style: Symbol, ?min_column_width: Integer, ?max_column_width: Integer) -> void
+          def calculate: (Integer col_count, Array[String] headers, Array[Array[untyped]] rows) -> Array[Integer]
+          def calculate_widths: (Array[String] headers, Array[Array[untyped]] rows) -> Array[Integer]
+
+          private
+
+          def initialize_column_widths: (Integer col_count, Array[String] headers) -> Array[Integer]
+          def update_widths_from_rows: (Array[Integer] widths, Array[Array[untyped]] rows, Integer col_count) -> void
+          def apply_minimum_widths: (Array[Integer] widths) -> Array[Integer]
+          def calculate_cell_width: (untyped cell) -> Integer
+        end
+
+        class TableRenderer
+          @table_style: Symbol
+          @max_column_width: Integer
+
+          def initialize: (?table_style: Symbol, ?max_column_width: Integer) -> void
+          def render: (Array[String] headers, Array[Array[untyped]] rows, Array[Integer] column_widths) -> Array[String]
+          def render_table: (Array[String] headers, Array[Array[untyped]] rows, Array[Integer] column_widths) -> Array[String]
+
+          private
+
+          def build_row: (Array[untyped] cells, Array[Integer] col_widths) -> String
+          def build_separator: (Array[Integer] col_widths) -> String
+          def format_cells: (Array[untyped] cells, Array[Integer] col_widths) -> Array[String]
+          def format_cell_content: (untyped cell) -> String
+        end
+      end
+
+      class FooterComponent < Base::BaseComponent
+        def initialize: (Hash[Symbol, untyped] options) -> void
+        def generate: () -> Array[String]
+        def generate_detailed_footer: () -> Array[String]
+        def generate_default_footer: () -> Array[String]
+
+        private
+
+        def build_footer_content: () -> Array[String]
+      end
+
+      class MissingBehaviorsComponent < Base::BaseComponent
+        @missing_behaviors: Hash[String, Hash[String, String]]
+
+        def generate: () -> Array[String]
+        def track_missing_behaviors: () -> void
+        def generate_missing_behaviors_summary: () -> Array[String]
+        def generate_grouped_summary: () -> Array[String]
+        def generate_flat_summary: () -> Array[String]
+        def generate_detailed_summary: () -> Array[String]
+
+        private
+
+        def find_missing_behaviors: () -> Hash[String, Array[String]]
+        def format_missing_behaviors: (Hash[String, Array[String]] missing) -> Array[String]
+      end
+
+      class GenericHeaderComponent < Base::BaseComponent
+        def generate: () -> Array[String]
+        def generate_markdown_header: () -> Array[String]
+        def generate_csv_header: () -> Array[String]
+      end
+    end
+  end
+end

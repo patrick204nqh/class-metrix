@@ -108,7 +108,7 @@ module ClassMetrix
     end
 
     def get_all_included_modules(klass)
-      modules = []
+      modules = [] #: Array[Module]
       modules.concat(klass.included_modules)
 
       if @options[:include_inherited]

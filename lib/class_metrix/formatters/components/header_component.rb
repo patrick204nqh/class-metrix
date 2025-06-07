@@ -15,7 +15,7 @@ module ClassMetrix
         end
 
         def generate
-          output = []
+          output = [] #: Array[String]
 
           # Add title
           output.concat(generate_title) if @title || @show_metadata
@@ -32,7 +32,7 @@ module ClassMetrix
         private
 
         def generate_title
-          output = []
+          output = [] #: Array[String]
 
           if @title
             output << "# #{@title}"
@@ -46,7 +46,7 @@ module ClassMetrix
         end
 
         def generate_classes_section
-          output = []
+          output = [] #: Array[String]
 
           has_type_column = @data[:headers].first == "Type"
           class_headers = if has_type_column
@@ -66,7 +66,7 @@ module ClassMetrix
         end
 
         def generate_extraction_info
-          output = []
+          output = [] #: Array[String]
 
           output << "## Extraction Types"
           output << ""

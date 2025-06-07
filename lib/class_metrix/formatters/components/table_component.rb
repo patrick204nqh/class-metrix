@@ -21,9 +21,10 @@ module ClassMetrix
 
           # Initialize helper objects
           @data_extractor = TableDataExtractor.new(@data[:headers])
-          @row_processor = RowProcessor.new(@data_extractor,
+          @row_processor = RowProcessor.new(@data_extractor, {
                                             hide_main_row: @hide_main_row,
-                                            hide_key_rows: @hide_key_rows)
+                                            hide_key_rows: @hide_key_rows
+                                          })
           @width_calculator = ColumnWidthCalculator.new(
             table_style: @table_style,
             min_column_width: @min_column_width,
@@ -36,7 +37,7 @@ module ClassMetrix
         end
 
         def generate
-          return "" if @data[:headers].empty? || @data[:rows].empty?
+          return [""] if @data[:headers].empty? || @data[:rows].empty?
 
           headers = @data[:headers]
           rows = if @expand_hashes

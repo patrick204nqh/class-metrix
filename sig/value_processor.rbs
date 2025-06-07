@@ -1,0 +1,11 @@
+# Legacy value processor for backward compatibility
+module ClassMetrix
+  class ValueProcessor
+    def self.process: (untyped value, ?expand_hashes: bool) -> (String | Array[Hash[Symbol, untyped]])
+    def self.format_hash: (Hash[untyped, untyped] hash) -> String
+    def self.expand_hash: (Hash[untyped, untyped] hash) -> Array[Hash[Symbol, untyped]]
+    def self.handle_extraction_error: (Exception error) -> String
+    def self.missing_constant: () -> String
+    def self.missing_method: () -> String
+  end
+end

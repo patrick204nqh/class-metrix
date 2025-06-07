@@ -48,7 +48,7 @@ module ClassMetrix
       @debug_mode = true
       @debug_level = level
       @logger = Utils::DebugLogger.new("Extractor", @debug_mode, level)
-      @logger.log("Debug mode enabled (level: #{level})")
+      @logger&.log("Debug mode enabled (level: #{level})")
       self
     end
 

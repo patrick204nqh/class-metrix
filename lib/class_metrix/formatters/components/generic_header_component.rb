@@ -30,7 +30,7 @@ module ClassMetrix
         private
 
         def generate_markdown_header
-          output = []
+          output = [] #: Array[String]
 
           # Add title
           if @title
@@ -58,7 +58,7 @@ module ClassMetrix
         end
 
         def generate_csv_header
-          output = []
+          output = [] #: Array[String]
           comment_char = @options.fetch(:comment_char, "#")
 
           # Add title as comment

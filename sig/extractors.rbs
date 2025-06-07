@@ -1,0 +1,84 @@
+# Specialized extractor classes
+module ClassMetrix
+  class ConstantsExtractor
+    @classes: Array[Class]
+    @filters: Array[Regexp | String]
+    @handle_errors: bool
+    @options: Hash[Symbol, untyped]
+    @debug_level: Symbol
+    @logger: ClassMetrix::Utils::DebugLogger
+
+    def initialize: (Array[Class] classes, Array[Regexp | String] filters, bool handle_errors, ?Hash[Symbol, untyped] options) -> void
+    def extract: () -> Hash[Symbol, untyped]
+
+    private
+
+    def default_options: () -> Hash[Symbol, untyped]
+    def build_headers: () -> Array[String]
+    def build_rows: (Array[String] constant_names) -> Array[Array[untyped]]
+    def get_all_constant_names: () -> Array[String]
+    def inheritance_or_modules_enabled?: () -> bool
+    def get_comprehensive_constants: (Class klass) -> Array[Symbol]
+    def get_inherited_constants: (Class klass) -> Set[Symbol]
+    def get_module_constants: (Class klass) -> Set[Symbol]
+    def get_all_included_modules: (Class klass) -> Array[Module]
+    def core_class?: (untyped klass) -> bool
+    def apply_filters: (Array[String] constant_names) -> Array[String]
+    def extract_constant_value: (Class klass, String const_name) -> untyped
+    def find_constant_source: (Class klass, String const_name) -> Hash[Symbol, untyped]?
+    def find_inherited_constant: (Class klass, String const_name) -> Hash[Symbol, untyped]?
+    def find_module_constant: (Class klass, String const_name) -> Hash[Symbol, untyped]?
+    def build_constant_info: (untyped value, String source, Symbol type) -> Hash[Symbol, untyped]
+    def debug_log: (String message) -> void
+  end
+
+  class MethodsExtractor
+    @classes: Array[Class]
+    @filters: Array[Regexp | String]
+    @handle_errors: bool
+    @options: Hash[Symbol, untyped]
+
+    def initialize: (Array[Class] classes, Array[Regexp | String] filters, bool handle_errors, ?Hash[Symbol, untyped] options) -> void
+    def extract: () -> Hash[Symbol, untyped]
+
+    private
+
+    def default_options: () -> Hash[Symbol, untyped]
+    def build_headers: () -> Array[String]
+    def build_rows: (Array[String] method_names) -> Array[Array[untyped]]
+    def get_all_class_method_names: () -> Array[String]
+    def inheritance_or_modules_enabled?: () -> bool
+    def get_comprehensive_methods: (Class klass) -> Array[Symbol]
+    def get_inherited_methods: (Class klass) -> Set[Symbol]
+    def get_module_methods: (Class klass) -> Set[Symbol]
+    def excluded_module_method?: (String method_name) -> bool
+    def get_all_singleton_modules: (Class klass) -> Array[Module]
+    def core_class?: (untyped klass) -> bool
+    def core_module?: (untyped mod) -> bool
+    def apply_filters: (Array[String] method_names) -> Array[String]
+    def call_class_method: (Class klass, String method_name) -> untyped
+    def call_method: (Hash[Symbol, untyped] method_info, Class klass, String method_name) -> untyped
+    def find_method_source: (Class klass, String method_name) -> Hash[Symbol, untyped]?
+    def find_inherited_method: (Class klass, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+    def find_module_method: (Class klass, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+    def determine_module_source: (Class klass, Module mod) -> String
+    def build_method_info: (String source, Symbol type, Proc? callable) -> Hash[Symbol, untyped]
+  end
+
+  class MultiTypeExtractor
+    @classes: Array[Class]
+    @types: Array[Symbol]
+    @filters: Array[Regexp | String]
+    @modules: Array[Module]
+    @handle_errors: bool
+    @options: Hash[Symbol, untyped]
+
+    def initialize: (Array[Class] classes, Array[Symbol] types, Array[Regexp | String] filters, ?Hash[Symbol, untyped] extraction_config) -> void
+    def extract: () -> Hash[Symbol, untyped]
+
+    private
+
+    def extract_single_type: (Symbol type) -> Hash[Symbol, untyped]
+    def type_label: (Symbol type) -> String
+  end
+end

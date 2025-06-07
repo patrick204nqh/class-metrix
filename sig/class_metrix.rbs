@@ -1,0 +1,8 @@
+# Main ClassMetrix module
+module ClassMetrix
+  class Error < StandardError
+  end
+
+  # Main entry point for the gem
+  def self.extract: (*Symbol types) -> ClassMetrix::Extractor
+end

@@ -1,0 +1,59 @@
+# Base formatter classes
+module ClassMetrix
+  module Formatters
+    module Base
+      class BaseFormatter
+        attr_reader data: Hash[Symbol, untyped]
+        attr_reader expand_hashes: bool
+        attr_reader options: Hash[Symbol, untyped]
+
+        def initialize: (Hash[Symbol, untyped] data, ?bool expand_hashes, ?Hash[Symbol, untyped] options) -> void
+        def format: () -> String
+
+        private
+
+        def default_options: () -> Hash[Symbol, untyped]
+        def has_type_column?: () -> bool
+        def behavior_column_index: () -> Integer
+        def value_start_index: () -> Integer
+        def class_headers: () -> Array[String]
+        def collect_all_hash_keys: (Array[Array[untyped]] rows, Array[String] _headers) -> Hash[String, Set[String]]
+        def determine_table_data: () -> Hash[Symbol, untyped]
+        def render_markdown_table: (Hash[Symbol, untyped] table_data) -> Array[String]
+        def render_csv_table: (Hash[Symbol, untyped] table_data) -> Array[String]
+        def calculate_column_widths: (Array[String] headers, Array[Array[untyped]] rows) -> Array[Integer]
+        def build_header_row: (Array[String] headers, Array[Integer] widths) -> String
+        def build_separator_row: (Array[Integer] widths) -> String
+        def build_data_rows: (Array[Array[untyped]] rows, Array[String] headers, Array[Integer] widths) -> Array[String]
+        def build_single_data_row: (Array[untyped] row, Array[String] headers, Array[Integer] widths) -> String
+        def pad_row_to_header_length: (Array[untyped] row, Integer header_length) -> Array[untyped]
+        def format_row_cells: (Array[untyped] row, Array[Integer] widths) -> Array[String]
+        def truncate_cell: (String cell, Integer max_width) -> String
+        def truncate_hash_representation: (String text, Integer max_width) -> String
+        def format_cell: (untyped cell) -> String
+        def format_csv_cell: (untyped cell) -> String
+        def process_value: (untyped value, ?Symbol format) -> String
+        def safe_hash_lookup: (Hash[untyped, untyped] hash, untyped key) -> untyped
+        def has_hash_key?: (Hash[untyped, untyped] hash, untyped key) -> bool
+      end
+
+      class BaseComponent
+        attr_reader data: Hash[Symbol, untyped]
+        attr_reader options: Hash[Symbol, untyped]
+        attr_reader value_processor: untyped
+
+        def initialize: (Hash[Symbol, untyped] data, ?Hash[Symbol, untyped] options) -> void
+        def generate: () -> Array[String]
+
+        private
+
+        def has_type_column?: () -> bool
+        def behavior_column_index: () -> Integer
+        def value_start_index: () -> Integer
+        def class_headers: () -> Array[String]
+        def extraction_types_description: () -> String
+        def format_timestamp: () -> String
+      end
+    end
+  end
+end

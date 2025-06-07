@@ -1,0 +1,102 @@
+# Shared table builder classes and value processor
+module ClassMetrix
+  module Formatters
+    module Shared
+      class ValueProcessor
+        def self.process_for_markdown: (untyped value, ?debug_mode: bool, ?debug_level: Symbol) -> String
+        def self.process_for_csv: (untyped value, ?Hash[Symbol, untyped] options, ?debug_mode: bool, ?debug_level: Symbol) -> String
+        def self.process_csv_value_by_type: (untyped value, untyped logger, String null_value) -> String
+        def self.process_hash_for_csv: (Hash[untyped, untyped] value, untyped logger) -> String
+        def self.process_array_for_csv: (Array[untyped] value, untyped logger) -> String
+        def self.process_string_for_csv: (String value, String null_value) -> String
+        def self.process_other_for_csv: (untyped value, untyped logger) -> String
+        def self.safe_hash_lookup: (Hash[untyped, untyped] hash, untyped key, ?debug_mode: bool, ?debug_level: Symbol) -> untyped
+        def self.has_hash_key?: (Hash[untyped, untyped] hash, untyped key, ?debug_mode: bool, ?debug_level: Symbol) -> bool
+        def self.missing_constant: () -> String
+        def self.missing_method: () -> String
+        def self.handle_extraction_error: (Exception error) -> String
+        def self.missing_hash_key: () -> String
+      end
+      class TableBuilder
+        @data: Hash[Symbol, untyped]
+        @expand_hashes: bool
+        @options: Hash[Symbol, untyped]
+
+        def initialize: (Hash[Symbol, untyped] data, bool expand_hashes, Hash[Symbol, untyped] options) -> void
+        def build: () -> Array[String]
+        def build_simple_table: () -> Hash[Symbol, untyped]
+        def build_expanded_table: () -> Hash[Symbol, untyped]
+        def build_flattened_table: () -> Hash[Symbol, untyped]
+        def process_rows_for_expansion: (Array[String] headers) -> Array[Array[untyped]]
+        def row_has_expandable_hash?: (Array[untyped] row) -> bool
+        def create_flattened_rows: (Array[Array[untyped]] rows, Array[String] headers, Hash[String, Set[String]] all_hash_keys) -> Array[Array[untyped]]
+        def has_type_column?: () -> bool
+        def behavior_column_index: () -> Integer
+        def value_start_index: () -> Integer
+        def class_headers: () -> Array[String]
+        def process_row: (Array[untyped] row) -> Array[untyped]
+        def process_value: (untyped value) -> String
+        def expand_row: (Array[untyped] row, Array[String] _headers) -> Array[Array[untyped]]
+        def collect_hash_keys_from_values: (Array[untyped] values) -> Set[String]
+        def build_expanded_row_set: (Array[untyped] row, String behavior_name, Array[untyped] values, Set[String] all_hash_keys) -> Array[Array[untyped]]
+        def should_show_main_row?: () -> bool
+        def should_show_key_rows?: () -> bool
+        def build_main_row: (Array[untyped] row, String behavior_name, Array[untyped] values) -> Array[untyped]
+        def build_sub_rows: (Set[String] all_hash_keys, Array[untyped] values) -> Array[Array[untyped]]
+        def build_single_sub_row: (String key, Array[untyped] values) -> Array[untyped]
+        def extract_key_values: (Array[untyped] values, String key) -> Array[untyped]
+        def extract_single_key_value: (untyped value, String key) -> untyped
+        def extract_hash_value_for_key: (Hash[untyped, untyped] hash, String key) -> untyped
+        def collect_all_hash_keys: (Array[Array[untyped]] rows, Array[String] _headers) -> Hash[String, Set[String]]
+        def collect_hash_keys_for_row: (Array[untyped] row, Integer value_start_idx, Hash[String, Set[String]] all_keys) -> Integer
+        def create_flattened_headers: (Array[String] headers, Hash[String, Set[String]] all_hash_keys) -> Array[String]
+        def add_hash_key_headers: (Array[String] flattened, Hash[String, Set[String]] all_hash_keys, Array[String] class_hdrs) -> void
+        def add_behavior_key_headers: (Array[String] flattened, String behavior_name, Set[String] keys, Array[String] class_hdrs) -> void
+        def flatten_row: (Array[untyped] row, Array[String] _headers, Hash[String, Set[String]] all_hash_keys) -> Array[untyped]
+        def extract_hash_key_value: (Hash[untyped, untyped] hash, String key) -> untyped
+        def add_flattened_hash_values: (Array[untyped] flattened, Array[untyped] row, String behavior_name, Hash[String, Set[String]] all_hash_keys) -> void
+        def add_flattened_values_for_key: (Array[untyped] flattened, Array[untyped] values, String key) -> void
+        def extract_flattened_value: (untyped value, String key) -> untyped
+        def get_null_value: () -> String
+
+        private
+
+        def create_header_row: (Array[String] headers) -> String
+        def create_separator_row: (Array[String] headers) -> String
+        def create_data_row: (Array[untyped] row) -> String
+      end
+
+      class MarkdownTableBuilder < TableBuilder
+        def build: () -> Array[String]
+        def process_value: (untyped value) -> String
+        def get_null_value: () -> String
+        def expand_row: (Array[untyped] row, Array[String] _headers) -> Array[Array[untyped]]
+        def collect_unique_hash_keys: (Array[untyped] values) -> Set[String]
+        def build_expanded_row_structure: (Array[untyped] row, String behavior_name, Array[untyped] values, Set[String] all_hash_keys) -> Array[Array[untyped]]
+        def build_main_row: (Array[untyped] row, String behavior_name, Array[untyped] values) -> Array[untyped]
+        def build_hash_key_rows: (Array[untyped] row, String behavior_name, Array[untyped] values, Set[String] all_hash_keys) -> Array[Array[untyped]]
+        def build_single_key_row: (Array[untyped] row, String behavior_name, Array[untyped] values, String key) -> Array[untyped]
+        def extract_key_values_for_row: (Array[untyped] values, String key) -> Array[untyped]
+        def extract_single_key_value: (untyped value, String key) -> untyped
+        def extract_hash_key_value: (Hash[untyped, untyped] hash, String key) -> untyped
+
+        private
+
+        def create_header_row: (Array[String] headers) -> String
+        def create_separator_row: (Array[String] headers) -> String
+        def create_data_row: (Array[untyped] row) -> String
+      end
+
+      class CsvTableBuilder < TableBuilder
+        def build: () -> Array[String]
+        def process_value: (untyped value) -> String
+        def get_null_value: () -> String
+
+        private
+
+        def create_csv_row: (Array[untyped] row) -> String
+        def escape_csv_value: (untyped value) -> String
+      end
+    end
+  end
+end

@@ -11,7 +11,7 @@ module ClassMetrix
           end
 
           def render_table(headers, rows, column_widths)
-            output = []
+            output = [] #: Array[String]
             output << build_row(headers, column_widths)
             output << build_separator(column_widths)
 
@@ -19,7 +19,7 @@ module ClassMetrix
               output << build_row(row, column_widths)
             end
 
-            output.join("\n")
+            output
           end
 
           private

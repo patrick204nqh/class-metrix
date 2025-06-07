@@ -16,7 +16,8 @@ module ClassMetrix
           def process_simple_rows(rows)
             rows.map do |row|
               processed_row = [row[0]] # Keep the behavior name as-is
-              row[1..].each do |value|
+              rest_values = row[1..] || []
+              rest_values.each do |value|
                 processed_row << ValueProcessor.process(value)
               end
               processed_row
@@ -24,7 +25,7 @@ module ClassMetrix
           end
 
           def process_expanded_rows(rows)
-            expanded_rows = []
+            expanded_rows = [] #: Array[Array[String]]
 
             rows.each do |row|
               if @data_extractor.row_has_expandable_hash?(row)
@@ -41,9 +42,11 @@ module ClassMetrix
 
           def process_non_hash_row(row)
             if @data_extractor.has_type_column?
-              [row[0], row[1]] + row[2..].map { |value| ValueProcessor.process(value) }
+              rest_values = row[2..] || []
+              [row[0], row[1]] + rest_values.map { |value| ValueProcessor.process(value) }
             else
-              [row[0]] + row[1..].map { |value| ValueProcessor.process(value) }
+              rest_values = row[1..] || []
+              [row[0]] + rest_values.map { |value| ValueProcessor.process(value) }
             end
           end
 
@@ -57,7 +60,7 @@ module ClassMetrix
           end
 
           def build_expanded_rows(row_data, all_hash_keys, original_row)
-            expanded_rows = []
+            expanded_rows = [] #: Array[Array[String]]
 
             # Add main row if configured to show
             expanded_rows << build_main_expanded_row(row_data) if should_show_main_row?

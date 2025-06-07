@@ -19,7 +19,7 @@ module ClassMetrix
         # Create proper flat table structure for hash expansion
         def expand_row(row, _headers)
           behavior_name = row[behavior_column_index]
-          values = row[value_start_index..]
+          values = row[value_start_index..] || []
 
           all_hash_keys = collect_unique_hash_keys(values)
           return [process_row(row)] if all_hash_keys.empty?
@@ -36,7 +36,7 @@ module ClassMetrix
         end
 
         def build_expanded_row_structure(row, behavior_name, values, all_hash_keys)
-          expanded_rows = []
+          expanded_rows = [] #: Array[Array[String]]
 
           # Add main row if configured to show
           expanded_rows << build_main_row(row, behavior_name, values) if should_show_main_row?

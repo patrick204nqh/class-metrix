@@ -26,7 +26,7 @@ module ClassMetrix
             # Common options for all formatters
             title: nil,
             show_metadata: true,
-            extraction_types: []
+            extraction_types: [] #: Array[Symbol]
           }
         end
 
@@ -52,11 +52,11 @@ module ClassMetrix
 
         def collect_all_hash_keys(rows, _headers)
           value_start_idx = value_start_index
-          all_keys = {} # behavior_name => Set of keys
+          all_keys = {} #: Hash[String, Set[String]] # behavior_name => Set of keys
 
           rows.each do |row|
             behavior_name = row[behavior_column_index]
-            values = row[value_start_idx..]
+            values = row[value_start_idx..] || []
 
             values.each do |value|
               if value.is_a?(Hash)

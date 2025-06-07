@@ -1,0 +1,32 @@
+# manifest.yaml for RBS type definitions
+# This file defines the structure and dependencies of the RBS signatures
+
+dependencies:
+  - name: csv
+    version: "~> 3.0"
+  - name: pathname
+    version: "~> 0.2"
+  - name: json
+    version: "~> 2.0"
+  - name: fileutils
+    version: "~> 1.0"
+
+type_definitions:
+  - class_metrix.rbs         # Main module and entry point
+  - version.rbs              # Version constant
+  - extractor.rbs            # Core extractor fluent interface
+  - extractors.rbs           # Specialized extractor classes
+  - formatters_base.rbs      # Base formatter and component classes
+  - formatters_components.rbs # Component classes for formatters
+  - formatters_shared.rbs    # Shared table builder classes
+  - formatters_main.rbs      # Main formatter classes
+  - utils.rbs                # Utility classes and processors
+
+coverage_targets:
+  - lib/class_metrix.rb
+  - lib/class_metrix/version.rb
+  - lib/class_metrix/extractor.rb
+  - lib/class_metrix/extractors/
+  - lib/class_metrix/formatters/
+  - lib/class_metrix/utils/
+  - lib/class_metrix/processors/

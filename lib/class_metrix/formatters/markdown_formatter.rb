@@ -16,7 +16,7 @@ module ClassMetrix
     def format
       return "" if @data[:headers].empty? || @data[:rows].empty?
 
-      output = []
+      output = [] #: Array[String]
 
       # Add header sections (title, classes, extraction info)
       if @options.fetch(:show_metadata, true)
@@ -77,7 +77,7 @@ module ClassMetrix
 
       widths = calculate_column_widths(headers, rows)
 
-      output = []
+      output = [] #: Array[String]
       output << build_header_row(headers, widths)
       output << build_separator_row(widths)
       output.concat(build_data_rows(rows, headers, widths))
@@ -170,8 +170,7 @@ module ClassMetrix
       if max_width >= 15
         # Look for the first complete key-value pair (handle :symbol=>value format)
         match = text.match(/\{(:[^,}]+=>[^,}]+)/)
-        if match
-          first_pair = match[1]
+        if match && (first_pair = match[1])
           needed_length = first_pair.length + 6 # For "{", ", ...}"
           return "{#{first_pair}, ...}" if needed_length <= max_width
         end
