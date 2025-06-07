@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "class_metrix"
+
+# You can add fixtures and/or initialization code here to make experimenting
+# with your gem easier. You can also use a different console, if you like.
+
+# Example classes for testing
+class User
+  ROLE_NAME = "user"
+  DEFAULT_PERMISSIONS = ["read"]
+  MAX_LOGIN_ATTEMPTS = 3
+
+  def self.authenticate_method
+    "basic"
+  end
+
+  def self.session_timeout
+    3600
+  end
+
+  def self.config
+    { timeout: 30, retries: 3 }
+  end
+end
+
+class Admin
+  ROLE_NAME = "admin"
+  DEFAULT_PERMISSIONS = %w[read write admin]
+  ADMIN_LEVEL = 10
+
+  def self.authenticate_method
+    "two_factor"
+  end
+
+  def self.session_timeout
+    7200
+  end
+
+  def self.admin_config
+    { timeout: 60, retries: 5, admin: true }
+  end
+end
+
+puts "ClassMetrix Console"
+puts "==================="
+puts "Example classes available: User, Admin"
+puts "Try: ClassMetrix.extract(:constants).from([User, Admin]).to_markdown"
+puts
+
+require "irb"
+IRB.start(__FILE__)
