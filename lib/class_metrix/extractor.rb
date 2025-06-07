@@ -6,6 +6,7 @@ require_relative "extractors/multi_type_extractor"
 require_relative "formatters/markdown_formatter"
 require_relative "formatters/csv_formatter"
 require_relative "utils/class_resolver"
+require_relative "utils/debug_logger"
 
 module ClassMetrix
   class Extractor
@@ -21,10 +22,14 @@ module ClassMetrix
       @show_source = false
       @hide_main_row = false
       @hide_key_rows = true # Default: show only main rows
+      @debug_mode = false
+      @debug_level = :basic
+      @logger = nil # Will be initialized when debug mode is enabled
     end
 
     def from(classes)
       @classes = ClassResolver.normalize_classes(classes)
+      @logger&.log("Normalized classes: #{@classes.map(&:name)}")
       self
     end
 
@@ -35,6 +40,15 @@ module ClassMetrix
 
     def expand_hashes
       @expand_hashes = true
+      @logger&.log("Hash expansion enabled")
+      self
+    end
+
+    def debug(level = :basic)
+      @debug_mode = true
+      @debug_level = level
+      @logger = Utils::DebugLogger.new("Extractor", @debug_mode, level)
+      @logger.log("Debug mode enabled (level: #{level})")
       self
     end
 
@@ -101,7 +115,9 @@ module ClassMetrix
     end
 
     def to_markdown(filename = nil, **options)
+      @logger&.log("Starting markdown generation...")
       data = extract_all_data
+      @logger&.log("Extracted data structure with #{data[:rows]&.length || 0} rows")
 
       format_options = {
         extraction_types: @types,
@@ -115,7 +131,9 @@ module ClassMetrix
         table_style: :standard,
         summary_style: :grouped,
         hide_main_row: @hide_main_row,
-        hide_key_rows: @hide_key_rows
+        hide_key_rows: @hide_key_rows,
+        debug_mode: @debug_mode,
+        debug_level: @debug_level
       }.merge(options)
 
       formatted = MarkdownFormatter.new(data, @expand_hashes, format_options).format
@@ -125,6 +143,7 @@ module ClassMetrix
     end
 
     def to_csv(filename = nil, **options)
+      @logger&.log("Starting CSV generation...")
       data = extract_all_data
 
       format_options = {
@@ -136,7 +155,9 @@ module ClassMetrix
         null_value: "",
         comment_char: "#",
         hide_main_row: @hide_main_row,
-        hide_key_rows: @hide_key_rows
+        hide_key_rows: @hide_key_rows,
+        debug_mode: @debug_mode,
+        debug_level: @debug_level
       }.merge(options)
 
       formatted = CsvFormatter.new(data, @expand_hashes, format_options).format
@@ -148,6 +169,7 @@ module ClassMetrix
     private
 
     def extract_all_data
+      @logger&.log("Extracting data for types: #{@types}")
       if @types.size == 1
         extract_single_type(@types.first)
       else
@@ -156,10 +178,12 @@ module ClassMetrix
     end
 
     def extract_single_type(type)
+      @logger&.log("Extracting single type: #{type}")
       get_extractor(type).extract
     end
 
     def extract_multiple_types
+      @logger&.log("Extracting multiple types: #{@types}")
       MultiTypeExtractor.new(@classes, @types, @filters, @modules, @handle_errors, extraction_options).extract
     end
 
@@ -178,7 +202,9 @@ module ClassMetrix
       {
         include_inherited: @include_inherited,
         include_modules: @include_modules,
-        show_source: @show_source
+        show_source: @show_source,
+        debug_mode: @debug_mode,
+        debug_level: @debug_level
       }
     end
   end

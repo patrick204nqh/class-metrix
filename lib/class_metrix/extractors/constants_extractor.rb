@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../processors/value_processor"
+require_relative "../utils/debug_logger"
 
 module ClassMetrix
   class ConstantsExtractor
@@ -9,6 +10,8 @@ module ClassMetrix
       @filters = filters
       @handle_errors = handle_errors
       @options = default_options.merge(options)
+      @debug_level = @options[:debug_level] || :basic
+      @logger = Utils::DebugLogger.new("ConstantsExtractor", @options[:debug_mode], @debug_level)
     end
 
     def extract
@@ -146,13 +149,18 @@ module ClassMetrix
       constant_info = find_constant_source(klass, const_name)
 
       if constant_info
-        constant_info[:value]
+        value = constant_info[:value]
+        debug_log("Extracted constant '#{const_name}' from #{klass.name}: #{@logger.safe_inspect(value)} (#{@logger.safe_class(value)})")
+        value
       else
+        debug_log("Constant '#{const_name}' not found in #{klass.name}")
         @handle_errors ? ValueProcessor.missing_constant : nil
       end
     rescue NameError => e
+      debug_log("NameError extracting constant '#{const_name}' from #{klass.name}: #{e.message}")
       @handle_errors ? ValueProcessor.handle_extraction_error(e) : (raise e)
     rescue StandardError => e
+      debug_log("Error extracting constant '#{const_name}' from #{klass.name}: #{e.message}")
       @handle_errors ? ValueProcessor.handle_extraction_error(e) : (raise e)
     end
 
@@ -204,6 +212,10 @@ module ClassMetrix
         source: source,
         type: type
       }
+    end
+
+    def debug_log(message)
+      @logger.log(message)
     end
   end
 end

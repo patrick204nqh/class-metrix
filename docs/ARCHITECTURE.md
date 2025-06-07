@@ -110,8 +110,52 @@ lib/class_metrix/
 ├── processors/                        # Value processing utilities
 │   └── value_processor.rb             # Handle all Ruby value types
 └── utils/                            # General utilities
-    └── class_resolver.rb              # Class name resolution
+    ├── class_resolver.rb              # Class name resolution
+    └── debug_logger.rb                # Centralized debug logging & safety
 ```
+
+## 🐛 Debug System
+
+ClassMetrix includes a comprehensive debug system designed to handle problematic objects and provide detailed tracing:
+
+### Debug Logger (`Utils::DebugLogger`)
+
+The centralized debug logger provides:
+
+- **Safe Object Inspection**: Handles objects with unusual `inspect`, `to_s`, `class`, or `keys` behavior
+- **Consistent Logging Format**: Standardized `[DEBUG ComponentName]` format across all components
+- **Error-Resistant Operations**: All inspection methods wrapped in exception handling
+- **Component-Specific Loggers**: Each component gets its own logger instance
+
+### Safety Features
+
+ClassMetrix includes robust safety measures for handling unusual objects:
+
+```ruby
+# Safe inspection methods that handle problematic objects
+logger.safe_inspect(value)    # Won't crash on inspect failures
+logger.safe_class(value)      # Won't crash on class failures  
+logger.safe_keys(hash)        # Won't crash on keys failures
+logger.safe_to_s(value)       # Won't crash on to_s failures
+```
+
+### Hash Detection Safety
+
+The system uses strict hash detection to prevent issues with proxy objects:
+
+```ruby
+# Only real Hash objects are considered for expansion
+value.is_a?(Hash) && value.class == Hash && value.respond_to?(:keys)
+```
+
+This prevents objects like `Delayed::Backend::ActiveRecord::Job` (which may respond to `is_a?(Hash)` due to method delegation) from being treated as expandable hashes.
+
+### Debug Components
+
+- **Extractor**: Logs extraction flow and data structure information
+- **ConstantsExtractor**: Logs constant extraction and value details
+- **TableBuilder**: Logs hash expansion decisions and value processing
+- **ValueProcessor**: Logs value processing and type handling
 
 ## 🔄 Data Flow
 

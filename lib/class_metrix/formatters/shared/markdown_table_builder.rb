@@ -9,7 +9,7 @@ module ClassMetrix
         private
 
         def process_value(value)
-          @value_processor.process_for_markdown(value)
+          @value_processor.process_for_markdown(value, debug_mode: @options.fetch(:debug_mode, false))
         end
 
         def get_null_value
@@ -89,8 +89,8 @@ module ClassMetrix
         end
 
         def extract_hash_key_value(hash, key)
-          if @value_processor.has_hash_key?(hash, key)
-            hash_value = @value_processor.safe_hash_lookup(hash, key)
+          if @value_processor.has_hash_key?(hash, key, debug_mode: @options.fetch(:debug_mode, false))
+            hash_value = @value_processor.safe_hash_lookup(hash, key, debug_mode: @options.fetch(:debug_mode, false))
             process_value(hash_value)
           else
             get_null_value
