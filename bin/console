@@ -10,7 +10,7 @@ require "class_metrix"
 # Example classes for testing
 class User
   ROLE_NAME = "user"
-  DEFAULT_PERMISSIONS = ["read"]
+  DEFAULT_PERMISSIONS = ["read"].freeze
   MAX_LOGIN_ATTEMPTS = 3
 
   def self.authenticate_method
@@ -28,7 +28,7 @@ end
 
 class Admin
   ROLE_NAME = "admin"
-  DEFAULT_PERMISSIONS = %w[read write admin]
+  DEFAULT_PERMISSIONS = %w[read write admin].freeze
   ADMIN_LEVEL = 10
 
   def self.authenticate_method

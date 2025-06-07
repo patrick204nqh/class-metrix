@@ -34,9 +34,9 @@ module ClassMetrix
 
         def class_headers
           if has_type_column?
-            @data[:headers][2..-1] # Skip "Type" and "Behavior"
+            @data[:headers][2..] # Skip "Type" and "Behavior"
           else
-            @data[:headers][1..-1] # Skip first column (behavior name)
+            @data[:headers][1..] # Skip first column (behavior name)
           end
         end
 

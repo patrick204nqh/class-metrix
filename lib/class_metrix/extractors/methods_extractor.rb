@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
 require_relative "../processors/value_processor"
 
 module ClassMetrix
@@ -21,7 +20,7 @@ module ClassMetrix
       method_names = apply_filters(method_names)
 
       # Build headers: ["Method", "Class1", "Class2", ...]
-      headers = ["Method"] + @classes.map { |klass| klass.name }
+      headers = ["Method"] + @classes.map(&:name)
 
       # Build rows: each row represents one method across all classes
       rows = method_names.map do |method_name|

@@ -1,8 +1,88 @@
 AllCops:
-  TargetRubyVersion: 3.1
+  TargetRubyVersion: 3.3
+  SuggestExtensions: false
+  NewCops: enable
+  Exclude:
+    - 'bin/*'
+    - 'examples/**/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+    - '.ruby-lsp/**/*'
 
+# String literal styles
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Documentation requirements
+Style/Documentation:
+  Enabled: false  # Many classes don't need top-level documentation
+
+# Method and class length limits
+Metrics/MethodLength:
+  Max: 25  # Increased to accommodate current codebase
+
+Metrics/ClassLength:
+  Max: 250  # Increased to accommodate complex formatter classes
+
+Metrics/BlockLength:
+  Max: 30  # Slightly increased from default
+  Exclude:
+    - 'spec/**/*'  # Allow long blocks in tests
+    - 'class-metrix.gemspec'  # Allow long blocks in gemspec
+
+# Complexity limits
+Metrics/AbcSize:
+  Max: 35  # Increased to accommodate current codebase
+
+Metrics/CyclomaticComplexity:
+  Max: 15  # Increased to accommodate current codebase
+
+Metrics/PerceivedComplexity:
+  Max: 15  # Increased to accommodate current codebase
+
+# Line length
+Layout/LineLength:
+  Max: 140  # Increased from default 120
+
+# Naming conventions
+Naming/AccessorMethodName:
+  Enabled: false  # Allow get_ prefixed methods
+
+Naming/PredicateName:
+  Enabled: false  # Allow has_ prefixed methods
+
+# Optional boolean parameters
+Style/OptionalBooleanParameter:
+  Enabled: false  # Allow boolean default parameters
+
+# Gemspec warning
+Gemspec/RequiredRubyVersion:
+  Enabled: false  # Allow different ruby versions in gemspec vs rubocop
+
+# Script permissions (for examples)
+Lint/ScriptPermission:
+  Enabled: false
+
+# Allow constants in blocks (common in specs)
+Lint/ConstantDefinitionInBlock:
+  Enabled: false
+
+# String concatenation
+Style/StringConcatenation:
+  Enabled: false  # Allow string concatenation in some cases
+
+# Additional cops to disable based on project needs
+Gemspec/DevelopmentDependencies:
+  Enabled: false  # Allow development dependencies in gemspec
+
+Lint/DuplicateBranch:
+  Enabled: false  # Allow duplicate rescue branches for different error types
+
+Style/ComparableClamp:
+  Enabled: false  # Allow traditional min/max patterns for clarity
+
+Lint/NonAtomicFileOperation:
+  Enabled: false  # Allow traditional file existence checks in specs

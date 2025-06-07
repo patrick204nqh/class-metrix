@@ -5,8 +5,8 @@ require_relative "../../lib/class_metrix"
 
 # Example classes for demonstration
 class DatabaseService
-  DEFAULT_CONFIG = { host: "localhost", port: 5432, ssl: true }
-  TIMEOUT_CONFIG = { connect: 30, read: 60, write: 30 }
+  DEFAULT_CONFIG = { host: "localhost", port: 5432, ssl: true }.freeze
+  TIMEOUT_CONFIG = { connect: 30, read: 60, write: 30 }.freeze
 
   def self.connection_timeout
     30
@@ -18,8 +18,8 @@ class DatabaseService
 end
 
 class RedisService
-  DEFAULT_CONFIG = { host: "redis.local", port: 6379, ssl: false }
-  CLUSTER_CONFIG = { nodes: 3, replication: true, sharding: "consistent" }
+  DEFAULT_CONFIG = { host: "redis.local", port: 6379, ssl: false }.freeze
+  CLUSTER_CONFIG = { nodes: 3, replication: true, sharding: "consistent" }.freeze
 
   def self.connection_timeout
     5
@@ -31,7 +31,7 @@ class RedisService
 end
 
 class S3Service
-  DEFAULT_CONFIG = { region: "us-east-1", bucket: "my-bucket" }
+  DEFAULT_CONFIG = { region: "us-east-1", bucket: "my-bucket" }.freeze
 
   def self.connection_timeout
     60
@@ -173,7 +173,7 @@ puts "   - reports/minimal_config.md"
 puts "   - reports/detailed_audit.md"
 puts "   - reports/performance_settings.md"
 
-puts "\n" + "=" * 80
+puts "\n#{"=" * 80}"
 puts "Component Configuration Summary:"
 puts "=" * 80
 puts "✨ Header Component Options:"

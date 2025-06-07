@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
 require_relative "../processors/value_processor"
 
 module ClassMetrix
@@ -21,7 +20,7 @@ module ClassMetrix
       constant_names = apply_filters(constant_names)
 
       # Build headers: ["Constant", "Class1", "Class2", ...]
-      headers = ["Constant"] + @classes.map { |klass| klass.name }
+      headers = ["Constant"] + @classes.map(&:name)
 
       # Build rows: each row represents one constant across all classes
       rows = constant_names.map do |const_name|

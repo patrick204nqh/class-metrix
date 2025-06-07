@@ -10,12 +10,12 @@ class DatabaseConfig
     port: 5432,
     ssl: true,
     timeout: 30
-  }
+  }.freeze
 
   CLUSTER_CONFIG = {
     nodes: 3,
     replication: true
-  }
+  }.freeze
 
   def self.connection_timeout
     30
@@ -32,12 +32,12 @@ class RedisConfig
     port: 6379,
     ssl: false,
     timeout: 5
-  }
+  }.freeze
 
   CACHE_CONFIG = {
     ttl: 3600,
     max_memory: "1GB"
-  }
+  }.freeze
 
   def self.connection_timeout
     5
@@ -53,12 +53,12 @@ class S3Config
     region: "us-east-1",
     ssl: true,
     timeout: 60
-  }
+  }.freeze
 
   BUCKET_CONFIG = {
     versioning: true,
     encryption: "AES256"
-  }
+  }.freeze
 
   def self.connection_timeout
     60
@@ -176,16 +176,16 @@ puts "\n\n8. Saving to File"
 puts "-" * 40
 
 filename = "service_analysis.csv"
-result = ClassMetrix.extract(:constants, :class_methods)
-                    .from([DatabaseConfig, RedisConfig, S3Config])
-                    .filter(/CONFIG|timeout/)
-                    .expand_hashes
-                    .handle_errors
-                    .to_csv(
-                      filename,
-                      title: "Service Configuration Analysis",
-                      flatten_hashes: true
-                    )
+ClassMetrix.extract(:constants, :class_methods)
+           .from([DatabaseConfig, RedisConfig, S3Config])
+           .filter(/CONFIG|timeout/)
+           .expand_hashes
+           .handle_errors
+           .to_csv(
+             filename,
+             title: "Service Configuration Analysis",
+             flatten_hashes: true
+           )
 
 puts "CSV report saved to: #{filename}"
 puts "File size: #{File.size(filename)} bytes"
@@ -197,7 +197,7 @@ puts "\n\n9. Error Handling in CSV"
 puts "-" * 40
 
 class BrokenConfig
-  VALID_CONFIG = { host: "localhost" }
+  VALID_CONFIG = { host: "localhost" }.freeze
 
   def self.working_method
     "success"
@@ -216,7 +216,7 @@ result = ClassMetrix.extract(:constants, :class_methods)
 
 puts result
 
-puts "\n" + "=" * 80
+puts "\n#{"=" * 80}"
 puts "CSV Output Features Summary:"
 puts "=" * 80
 puts "✓ Simple CSV tables with comma separation"

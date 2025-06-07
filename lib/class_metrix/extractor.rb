@@ -62,12 +62,8 @@ module ClassMetrix
 
       formatted = MarkdownFormatter.new(data, @expand_hashes, format_options).format
 
-      if filename
-        File.write(filename, formatted)
-        formatted
-      else
-        formatted
-      end
+      File.write(filename, formatted) if filename
+      formatted
     end
 
     def to_csv(filename = nil, **options)
@@ -86,12 +82,8 @@ module ClassMetrix
 
       formatted = CsvFormatter.new(data, @expand_hashes, format_options).format
 
-      if filename
-        File.write(filename, formatted)
-        formatted
-      else
-        formatted
-      end
+      File.write(filename, formatted) if filename
+      formatted
     end
 
     private

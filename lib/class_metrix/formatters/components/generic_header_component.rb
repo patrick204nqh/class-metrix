@@ -77,7 +77,7 @@ module ClassMetrix
 
           # Add generation timestamp
           output << "#{comment_char} Generated: #{format_timestamp}"
-          output << "#{comment_char}" # Empty comment line for separation
+          output << comment_char.to_s # Empty comment line for separation
 
           output
         end

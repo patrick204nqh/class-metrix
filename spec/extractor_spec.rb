@@ -6,9 +6,9 @@ RSpec.describe ClassMetrix::Extractor do
   # Test classes for extraction
   class TestUser
     ROLE_NAME = "user"
-    DEFAULT_PERMISSIONS = ["read"]
+    DEFAULT_PERMISSIONS = ["read"].freeze
     MAX_LOGIN_ATTEMPTS = 3
-    CONFIG_HASH = { timeout: 30, retries: 3 }
+    CONFIG_HASH = { timeout: 30, retries: 3 }.freeze
 
     def self.authenticate_method
       "basic"
@@ -37,9 +37,9 @@ RSpec.describe ClassMetrix::Extractor do
 
   class TestAdmin
     ROLE_NAME = "admin"
-    DEFAULT_PERMISSIONS = %w[read write admin]
+    DEFAULT_PERMISSIONS = %w[read write admin].freeze
     ADMIN_LEVEL = 10
-    CONFIG_HASH = { timeout: 60, retries: 5, admin: true }
+    CONFIG_HASH = { timeout: 60, retries: 5, admin: true }.freeze
 
     def self.authenticate_method
       "two_factor"
@@ -269,8 +269,8 @@ RSpec.describe ClassMetrix::Extractor do
       let(:temp_csv_file) { "test_output.csv" }
 
       after do
-        File.delete(temp_md_file) if File.exist?(temp_md_file)
-        File.delete(temp_csv_file) if File.exist?(temp_csv_file)
+        FileUtils.rm_f(temp_md_file)
+        FileUtils.rm_f(temp_csv_file)
       end
 
       it "saves markdown output to file when filename is provided" do
@@ -405,8 +405,8 @@ RSpec.describe ClassMetrix::Extractor do
       BOOLEAN_TRUE_CONST = true
       BOOLEAN_FALSE_CONST = false
       NIL_CONST = nil
-      ARRAY_CONST = [1, 2, 3]
-      HASH_CONST = { key: "value", number: 123 }
+      ARRAY_CONST = [1, 2, 3].freeze
+      HASH_CONST = { key: "value", number: 123 }.freeze
 
       def self.string_method
         "world"

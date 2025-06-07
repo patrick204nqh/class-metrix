@@ -34,7 +34,8 @@ class ReleaseManager
         create_and_push_tag(new_version)
       else
         puts "\n🏷️  To create and push the release tag, run:"
-        puts "   git add -A && git commit -m 'Release v#{new_version}' && git tag v#{new_version} && git push origin master && git push origin v#{new_version}"
+        puts "   git add -A && git commit -m 'Release v#{new_version}' && git tag v#{new_version} && " \
+             "git push origin master && git push origin v#{new_version}"
       end
     end
 
@@ -50,7 +51,7 @@ class ReleaseManager
 
   def parse_options(args)
     OptionParser.new do |opts|
-      opts.banner = "Usage: #{$0} [options]"
+      opts.banner = "Usage: #{$PROGRAM_NAME} [options]"
 
       opts.on("-t", "--type TYPE", VALID_TYPES,
               "Release type: #{VALID_TYPES.join(", ")} (default: patch)") do |type|
@@ -103,7 +104,7 @@ class ReleaseManager
 
     # Replace [Unreleased] with the new version
     updated_content = content.gsub(
-      /## \[Unreleased\]/,
+      "## [Unreleased]",
       "## [Unreleased]\n\n## [#{new_version}] - #{today}"
     )
 
@@ -124,4 +125,4 @@ class ReleaseManager
   end
 end
 
-ReleaseManager.new.run(ARGV) if __FILE__ == $0
+ReleaseManager.new.run(ARGV) if __FILE__ == $PROGRAM_NAME

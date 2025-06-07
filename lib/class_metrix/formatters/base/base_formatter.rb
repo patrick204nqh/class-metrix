@@ -44,19 +44,19 @@ module ClassMetrix
 
         def class_headers
           if has_type_column?
-            @data[:headers][2..-1] # Skip "Type" and "Behavior"
+            @data[:headers][2..] # Skip "Type" and "Behavior"
           else
-            @data[:headers][1..-1] # Skip first column (behavior name)
+            @data[:headers][1..] # Skip first column (behavior name)
           end
         end
 
-        def collect_all_hash_keys(rows, headers)
+        def collect_all_hash_keys(rows, _headers)
           value_start_idx = value_start_index
           all_keys = {} # behavior_name => Set of keys
 
           rows.each do |row|
             behavior_name = row[behavior_column_index]
-            values = row[value_start_idx..-1]
+            values = row[value_start_idx..]
 
             values.each do |value|
               if value.is_a?(Hash)

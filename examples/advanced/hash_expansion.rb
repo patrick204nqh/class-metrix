@@ -14,13 +14,13 @@ class DatabaseConfig
     port: 5432,
     ssl: true,
     pool_size: 5
-  }
+  }.freeze
 
   CONNECTION_POOLS = {
     read: { size: 10, timeout: 30 },
     write: { size: 5, timeout: 15 },
     admin: { size: 2, timeout: 60 }
-  }
+  }.freeze
 
   # Hash methods
   def self.production_config
@@ -58,13 +58,13 @@ class RedisConfig
     port: 6379,
     ssl: false,
     timeout: 5
-  }
+  }.freeze
 
   CLUSTER_CONFIG = {
     nodes: 3,
     replication: true,
     failover: "auto"
-  }
+  }.freeze
 
   # Hash methods
   def self.production_config

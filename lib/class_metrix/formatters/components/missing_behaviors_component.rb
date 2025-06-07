@@ -24,9 +24,9 @@ module ClassMetrix
         def track_missing_behaviors
           has_type_column = @data[:headers].first == "Type"
           class_headers = if has_type_column
-                            @data[:headers][2..-1]
+                            @data[:headers][2..]
                           else
-                            @data[:headers][1..-1]
+                            @data[:headers][1..]
                           end
 
           # Initialize missing behaviors tracking with hash to store behavior name and error message
@@ -34,7 +34,7 @@ module ClassMetrix
 
           @data[:rows].each do |row|
             behavior_name = has_type_column ? row[1] : row[0]
-            values = has_type_column ? row[2..-1] : row[1..-1]
+            values = has_type_column ? row[2..] : row[1..]
 
             values.each_with_index do |value, index|
               class_name = class_headers[index]
@@ -50,7 +50,7 @@ module ClassMetrix
         def generate_missing_behaviors_summary
           # Only show summary if there are missing behaviors
           total_missing = @missing_behaviors.values.map(&:size).sum
-          return [] if total_missing == 0
+          return [] if total_missing.zero?
 
           case @summary_style
           when :flat

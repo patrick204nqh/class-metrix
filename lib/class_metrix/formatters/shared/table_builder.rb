@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
 require_relative "value_processor"
 
 module ClassMetrix
@@ -27,17 +26,7 @@ module ClassMetrix
           return build_simple_table unless @expand_hashes
 
           headers = @data[:headers]
-          expanded_rows = []
-
-          @data[:rows].each do |row|
-            has_expandable_hash = row[value_start_index..-1].any? { |cell| cell.is_a?(Hash) }
-
-            if has_expandable_hash
-              expanded_rows.concat(expand_row(row, headers))
-            else
-              expanded_rows << process_row(row)
-            end
-          end
+          expanded_rows = process_rows_for_expansion(headers)
 
           {
             headers: headers,
@@ -51,16 +40,9 @@ module ClassMetrix
           headers = @data[:headers]
           rows = @data[:rows]
 
-          # Collect all unique hash keys
           all_hash_keys = collect_all_hash_keys(rows, headers)
-
-          # Create flattened headers
           flattened_headers = create_flattened_headers(headers, all_hash_keys)
-
-          # Create flattened rows
-          flattened_rows = rows.map do |row|
-            flatten_row(row, headers, all_hash_keys)
-          end
+          flattened_rows = create_flattened_rows(rows, headers, all_hash_keys)
 
           {
             headers: flattened_headers,
@@ -69,6 +51,30 @@ module ClassMetrix
         end
 
         private
+
+        def process_rows_for_expansion(headers)
+          expanded_rows = []
+
+          @data[:rows].each do |row|
+            if row_has_expandable_hash?(row)
+              expanded_rows.concat(expand_row(row, headers))
+            else
+              expanded_rows << process_row(row)
+            end
+          end
+
+          expanded_rows
+        end
+
+        def row_has_expandable_hash?(row)
+          row[value_start_index..].any? { |cell| cell.is_a?(Hash) }
+        end
+
+        def create_flattened_rows(rows, headers, all_hash_keys)
+          rows.map do |row|
+            flatten_row(row, headers, all_hash_keys)
+          end
+        end
 
         def has_type_column?
           @data[:headers].first == "Type"
@@ -84,9 +90,9 @@ module ClassMetrix
 
         def class_headers
           if has_type_column?
-            @data[:headers][2..-1] # Skip "Type" and "Behavior"
+            @data[:headers][2..] # Skip "Type" and "Behavior"
           else
-            @data[:headers][1..-1] # Skip first column (behavior name)
+            @data[:headers][1..] # Skip first column (behavior name)
           end
         end
 
@@ -99,124 +105,156 @@ module ClassMetrix
           value
         end
 
-        def expand_row(row, headers)
+        def expand_row(row, _headers)
           behavior_name = row[behavior_column_index]
-          values = row[value_start_index..-1]
+          values = row[value_start_index..]
 
-          # Find all unique hash keys across all hash values in this row
+          all_hash_keys = collect_hash_keys_from_values(values)
+          return [process_row(row)] if all_hash_keys.empty?
+
+          build_expanded_row_set(row, behavior_name, values, all_hash_keys)
+        end
+
+        def collect_hash_keys_from_values(values)
           all_hash_keys = Set.new
           values.each do |value|
             all_hash_keys.merge(value.keys.map(&:to_s)) if value.is_a?(Hash)
           end
+          all_hash_keys
+        end
 
-          return [process_row(row)] if all_hash_keys.empty?
-
-          # Create expanded rows
+        def build_expanded_row_set(row, behavior_name, values, all_hash_keys)
           expanded_rows = []
-
-          # Main row with processed hash values
-          main_row = if has_type_column?
-                       [row[0], behavior_name] + values.map { |value| process_value(value) }
-                     else
-                       [behavior_name] + values.map { |value| process_value(value) }
-                     end
-          expanded_rows << main_row
-
-          # Sub-rows for each hash key
-          all_hash_keys.to_a.sort.each do |key|
-            path_name = ".#{key}"
-
-            key_values = values.map do |value|
-              if value.is_a?(Hash)
-                if @value_processor.has_hash_key?(value, key)
-                  hash_value = @value_processor.safe_hash_lookup(value, key)
-                  process_value(hash_value)
-                else
-                  get_null_value
-                end
-              else
-                get_null_value
-              end
-            end
-
-            key_row = if has_type_column?
-                        ["", path_name] + key_values # Empty type for sub-rows
-                      else
-                        [path_name] + key_values
-                      end
-
-            expanded_rows << key_row
-          end
-
+          expanded_rows << build_main_row(row, behavior_name, values)
+          expanded_rows.concat(build_sub_rows(all_hash_keys, values))
           expanded_rows
         end
 
-        def collect_all_hash_keys(rows, headers)
+        def build_main_row(row, behavior_name, values)
+          processed_values = values.map { |value| process_value(value) }
+
+          if has_type_column?
+            [row[0], behavior_name] + processed_values
+          else
+            [behavior_name] + processed_values
+          end
+        end
+
+        def build_sub_rows(all_hash_keys, values)
+          all_hash_keys.to_a.sort.map do |key|
+            build_single_sub_row(key, values)
+          end
+        end
+
+        def build_single_sub_row(key, values)
+          path_name = ".#{key}"
+          key_values = extract_key_values(values, key)
+
+          if has_type_column?
+            ["", path_name] + key_values # Empty type for sub-rows
+          else
+            [path_name] + key_values
+          end
+        end
+
+        def extract_key_values(values, key)
+          values.map do |value|
+            extract_single_key_value(value, key)
+          end
+        end
+
+        def extract_single_key_value(value, key)
+          if value.is_a?(Hash)
+            extract_hash_value_for_key(value, key)
+          else
+            get_null_value
+          end
+        end
+
+        def extract_hash_value_for_key(hash, key)
+          if @value_processor.has_hash_key?(hash, key)
+            hash_value = @value_processor.safe_hash_lookup(hash, key)
+            process_value(hash_value)
+          else
+            get_null_value
+          end
+        end
+
+        def collect_all_hash_keys(rows, _headers)
           value_start_idx = value_start_index
           all_keys = {} # behavior_name => Set of keys
 
           rows.each do |row|
-            behavior_name = row[behavior_column_index]
-            values = row[value_start_idx..-1]
-
-            values.each do |value|
-              if value.is_a?(Hash)
-                all_keys[behavior_name] ||= Set.new
-                all_keys[behavior_name].merge(value.keys.map(&:to_s))
-              end
-            end
+            collect_hash_keys_for_row(row, value_start_idx, all_keys)
           end
 
           all_keys
         end
 
+        def collect_hash_keys_for_row(row, value_start_idx, all_keys)
+          behavior_name = row[behavior_column_index]
+          values = row[value_start_idx..]
+
+          values.each do |value|
+            next unless value.is_a?(Hash)
+
+            all_keys[behavior_name] ||= Set.new
+            all_keys[behavior_name].merge(value.keys.map(&:to_s))
+          end
+        end
+
         def create_flattened_headers(headers, all_hash_keys)
           flattened = headers.dup
-
           class_hdrs = class_headers
 
-          # For each behavior that has hash keys, add flattened columns
-          all_hash_keys.each do |behavior_name, keys|
-            keys.to_a.sort.each do |key|
-              # Add one column for each class for each key
-              class_hdrs.each do |class_name|
-                flattened << "#{behavior_name}.#{key}.#{class_name}"
-              end
-            end
-          end
-
+          add_hash_key_headers(flattened, all_hash_keys, class_hdrs)
           flattened
         end
 
-        def flatten_row(row, headers, all_hash_keys)
-          behavior_name = row[behavior_column_index]
+        def add_hash_key_headers(flattened, all_hash_keys, class_hdrs)
+          all_hash_keys.each do |behavior_name, keys|
+            add_behavior_key_headers(flattened, behavior_name, keys, class_hdrs)
+          end
+        end
 
-          # Start with basic processed row
-          flattened = process_row(row)
-
-          # Add flattened hash values
-          if all_hash_keys[behavior_name]
-            values = row[value_start_index..-1]
-
-            # For each unique key across all hashes in this behavior
-            all_hash_keys[behavior_name].to_a.sort.each do |key|
-              # For each class column, get the value for this key
-              values.each do |value|
-                if value.is_a?(Hash)
-                  if @value_processor.has_hash_key?(value, key)
-                    hash_value = @value_processor.safe_hash_lookup(value, key)
-                    flattened << process_value(hash_value)
-                  else
-                    flattened << get_null_value
-                  end
-                else
-                  flattened << get_null_value
-                end
-              end
+        def add_behavior_key_headers(flattened, behavior_name, keys, class_hdrs)
+          keys.to_a.sort.each do |key|
+            class_hdrs.each do |class_name|
+              flattened << "#{behavior_name}.#{key}.#{class_name}"
             end
           end
+        end
 
+        def flatten_row(row, _headers, all_hash_keys)
+          behavior_name = row[behavior_column_index]
+          flattened = process_row(row)
+
+          add_flattened_hash_values(flattened, row, behavior_name, all_hash_keys)
           flattened
+        end
+
+        def add_flattened_hash_values(flattened, row, behavior_name, all_hash_keys)
+          return unless all_hash_keys[behavior_name]
+
+          values = row[value_start_index..]
+
+          all_hash_keys[behavior_name].to_a.sort.each do |key|
+            add_flattened_values_for_key(flattened, values, key)
+          end
+        end
+
+        def add_flattened_values_for_key(flattened, values, key)
+          values.each do |value|
+            flattened << extract_flattened_value(value, key)
+          end
+        end
+
+        def extract_flattened_value(value, key)
+          if value.is_a?(Hash)
+            extract_hash_value_for_key(value, key)
+          else
+            get_null_value
+          end
         end
 
         def get_null_value

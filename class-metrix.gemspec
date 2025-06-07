@@ -9,7 +9,9 @@ Gem::Specification.new do |spec|
   spec.email = ["patrick204nqh@gmail.com"]
 
   spec.summary = "Simple extraction and comparison of Ruby class behaviors with clean markdown output"
-  spec.description = "ClassMetrix allows you to easily extract and compare constants and class methods across multiple Ruby classes, generating clean markdown tables for analysis and documentation."
+  spec.description = "ClassMetrix allows you to easily extract and compare constants and class " \
+                     "methods across multiple Ruby classes, generating clean markdown tables " \
+                     "for analysis and documentation."
   spec.homepage = "https://github.com/patrick204nqh/class-metrix"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
@@ -39,4 +41,5 @@ Gem::Specification.new do |spec|
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
+  spec.metadata["rubygems_mfa_required"] = "true"
 end

@@ -75,32 +75,46 @@ module ClassMetrix
 
       return [] if headers.empty? || rows.empty?
 
-      # Calculate column widths based on table style
       widths = calculate_column_widths(headers, rows)
 
       output = []
-
-      # Header row
-      header_row = "| " + headers.map.with_index { |header, i| header.ljust(widths[i]) }.join(" | ") + " |"
-      output << header_row
-
-      # Separator row
-      separator = "|" + widths.map { |width| "-" * (width + 2) }.join("|") + "|"
-      output << separator
-
-      # Data rows
-      rows.each do |row|
-        # Ensure row has same number of columns as headers
-        padded_row = row + Array.new([0, headers.length - row.length].max, "")
-
-        data_row = "| " + padded_row.map.with_index { |cell, i|
-          cell_str = truncate_cell(cell.to_s, widths[i])
-          cell_str.ljust(widths[i])
-        }.join(" | ") + " |"
-        output << data_row
-      end
+      output << build_header_row(headers, widths)
+      output << build_separator_row(widths)
+      output.concat(build_data_rows(rows, headers, widths))
 
       output
+    end
+
+    def build_header_row(headers, widths)
+      "| " + headers.map.with_index { |header, i| header.ljust(widths[i]) }.join(" | ") + " |"
+    end
+
+    def build_separator_row(widths)
+      "|" + widths.map { |width| "-" * (width + 2) }.join("|") + "|"
+    end
+
+    def build_data_rows(rows, headers, widths)
+      rows.map do |row|
+        build_single_data_row(row, headers, widths)
+      end
+    end
+
+    def build_single_data_row(row, headers, widths)
+      padded_row = pad_row_to_header_length(row, headers.length)
+      formatted_cells = format_row_cells(padded_row, widths)
+      "| " + formatted_cells.join(" | ") + " |"
+    end
+
+    def pad_row_to_header_length(row, header_length)
+      padding_needed = [0, header_length - row.length].max
+      row + Array.new(padding_needed, "")
+    end
+
+    def format_row_cells(row, widths)
+      row.map.with_index do |cell, i|
+        cell_str = truncate_cell(cell.to_s, widths[i])
+        cell_str.ljust(widths[i])
+      end
     end
 
     def calculate_column_widths(headers, rows)
@@ -145,7 +159,7 @@ module ClassMetrix
         truncate_hash_representation(text, max_width)
       else
         # Standard truncation for other values
-        text[0..max_width - 4] + "..."
+        "#{text[0..max_width - 4]}..."
       end
     end
 

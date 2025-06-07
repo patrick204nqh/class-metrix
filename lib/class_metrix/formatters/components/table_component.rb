@@ -31,201 +31,236 @@ module ClassMetrix
           headers = @data[:headers]
           rows = @data[:rows]
 
-          # Process values for display
-          processed_rows = rows.map do |row|
-            processed_row = [row[0]] # Keep the behavior name as-is
-            row[1..-1].each do |value|
-              processed_row << ValueProcessor.process(value)
-            end
-            processed_row
-          end
-
-          # Calculate column widths
-          col_widths = calculate_column_widths(headers, processed_rows)
-
-          # Build the table
-          output = []
-
-          # Header row
-          header_row = build_row(headers, col_widths)
-          output << header_row
-
-          # Separator row
-          separator = build_separator(col_widths)
-          output << separator
-
-          # Data rows
-          processed_rows.each do |row|
-            data_row = build_row(row, col_widths)
-            output << data_row
-          end
-
-          output.join("\n")
+          processed_rows = process_simple_rows(rows)
+          build_table(headers, processed_rows)
         end
 
         def format_with_hash_expansion
           headers = @data[:headers]
           rows = @data[:rows]
+
+          expanded_rows = process_expanded_rows(rows, headers)
+          build_table(headers, expanded_rows)
+        end
+
+        def process_simple_rows(rows)
+          rows.map do |row|
+            processed_row = [row[0]] # Keep the behavior name as-is
+            row[1..].each do |value|
+              processed_row << ValueProcessor.process(value)
+            end
+            processed_row
+          end
+        end
+
+        def process_expanded_rows(rows, headers)
           expanded_rows = []
 
           rows.each do |row|
-            # Check if any cell contains a hash that needs expansion
-            # For multi-type extraction, values start at index 2, for single-type at index 1
-            has_type_column = headers.first == "Type"
-            value_start_index = has_type_column ? 2 : 1
-            has_expandable_hash = row[value_start_index..-1].any? { |cell| cell.is_a?(Hash) }
-
-            if has_expandable_hash
-              # Expand this row into multiple sub-rows
+            if row_has_expandable_hash?(row, headers)
               expanded_rows.concat(expand_row(row, headers))
             else
-              # Process the row values for display
-              processed_row = if has_type_column
-                                [row[0], row[1]] + row[2..-1].map { |value| ValueProcessor.process(value) }
-                              else
-                                [row[0]] + row[1..-1].map { |value| ValueProcessor.process(value) }
-                              end
-              expanded_rows << processed_row
+              expanded_rows << process_non_hash_row(row, headers)
             end
           end
 
-          # Build the table with expanded rows
-          col_widths = calculate_column_widths(headers, expanded_rows)
+          expanded_rows
+        end
+
+        def row_has_expandable_hash?(row, headers)
+          has_type_column = headers.first == "Type"
+          value_start_index = has_type_column ? 2 : 1
+          row[value_start_index..].any? { |cell| cell.is_a?(Hash) }
+        end
+
+        def process_non_hash_row(row, headers)
+          has_type_column = headers.first == "Type"
+          if has_type_column
+            [row[0], row[1]] + row[2..].map { |value| ValueProcessor.process(value) }
+          else
+            [row[0]] + row[1..].map { |value| ValueProcessor.process(value) }
+          end
+        end
+
+        def build_table(headers, rows)
+          col_widths = calculate_column_widths(headers, rows)
 
           output = []
+          output << build_row(headers, col_widths)
+          output << build_separator(col_widths)
 
-          # Header row
-          header_row = build_row(headers, col_widths)
-          output << header_row
-
-          # Separator row
-          separator = build_separator(col_widths)
-          output << separator
-
-          # Data rows
-          expanded_rows.each do |row|
-            data_row = build_row(row, col_widths)
-            output << data_row
+          rows.each do |row|
+            output << build_row(row, col_widths)
           end
 
           output.join("\n")
         end
 
         def expand_row(row, headers)
-          # Determine if this is multi-type extraction (has Type column)
           has_type_column = headers.first == "Type"
+          row_data = extract_row_data(row, has_type_column)
 
-          if has_type_column
-            # Multi-type format: [Type, Behavior, Value1, Value2, ...]
-            type_value = row[0]
-            behavior_name = row[1]
-            values = row[2..-1]
-          else
-            # Single-type format: [Behavior, Value1, Value2, ...]
-            behavior_name = row[0]
-            values = row[1..-1]
-          end
-
-          # Find all unique hash keys across all hash values in this row
-          all_hash_keys = Set.new
-          values.each_with_index do |value, i|
-            all_hash_keys.merge(value.keys.map(&:to_s)) if value.is_a?(Hash)
-          end
-
+          all_hash_keys = collect_hash_keys(row_data[:values])
           return [row] if all_hash_keys.empty?
 
-          # Create expanded rows
+          build_expanded_rows(row_data, all_hash_keys, has_type_column, row)
+        end
+
+        def extract_row_data(row, has_type_column)
+          if has_type_column
+            build_type_column_data(row)
+          else
+            build_standard_column_data(row)
+          end
+        end
+
+        def build_type_column_data(row)
+          {
+            type_value: row[0],
+            behavior_name: row[1],
+            values: row[2..]
+          }
+        end
+
+        def build_standard_column_data(row)
+          {
+            behavior_name: row[0],
+            values: row[1..]
+          }
+        end
+
+        def collect_hash_keys(values)
+          all_hash_keys = Set.new
+          values.each do |value|
+            all_hash_keys.merge(value.keys.map(&:to_s)) if value.is_a?(Hash)
+          end
+          all_hash_keys
+        end
+
+        def build_expanded_rows(row_data, all_hash_keys, has_type_column, original_row)
           expanded_rows = []
 
-          # First, add the main row with processed hash values (showing inspect or summary)
-          main_row = if has_type_column
-                       [type_value, behavior_name] + values.map { |value| ValueProcessor.process(value) }
-                     else
-                       [behavior_name] + values.map { |value| ValueProcessor.process(value) }
-                     end
-          expanded_rows << main_row
+          # Add main row
+          expanded_rows << build_main_expanded_row(row_data, has_type_column)
 
-          # Then add expanded key rows
+          # Add key rows
           all_hash_keys.to_a.sort.each do |key|
-            path_name = ".#{key}"
-
-            key_values = values.map.with_index do |value, index|
-              if value.is_a?(Hash)
-                # Check if key exists (need to check both string and symbol versions)
-                has_key = value.key?(key.to_sym) || value.key?(key.to_s)
-                if has_key
-                  hash_value = value[key.to_sym] || value[key.to_s]
-                  ValueProcessor.process(hash_value)
-                else
-                  "—" # Missing hash key (different from false value)
-                end
-              else
-                # Check if the original value was an error (from the main row)
-                original_value = row[has_type_column ? (index + 2) : (index + 1)]
-                if original_value.to_s.include?("🚫")
-                  "🚫 Not defined"
-                else
-                  "—" # Non-hash values don't have this key (different from false value)
-                end
-              end
-            end
-
-            key_row = if has_type_column
-                        ["-", path_name] + key_values
-                      else
-                        [path_name] + key_values
-                      end
-
-            expanded_rows << key_row
+            expanded_rows << build_key_row(key, row_data, has_type_column, original_row)
           end
 
           expanded_rows
         end
 
+        def build_main_expanded_row(row_data, has_type_column)
+          processed_values = row_data[:values].map { |value| ValueProcessor.process(value) }
+
+          if has_type_column
+            [row_data[:type_value], row_data[:behavior_name]] + processed_values
+          else
+            [row_data[:behavior_name]] + processed_values
+          end
+        end
+
+        def build_key_row(key, row_data, has_type_column, original_row)
+          path_name = ".#{key}"
+          key_values = process_key_values(key, row_data[:values], has_type_column, original_row)
+
+          if has_type_column
+            ["-", path_name] + key_values
+          else
+            [path_name] + key_values
+          end
+        end
+
+        def process_key_values(key, values, has_type_column, original_row)
+          values.map.with_index do |value, index|
+            if value.is_a?(Hash)
+              extract_hash_value(value, key)
+            else
+              handle_non_hash_value(original_row, index, has_type_column)
+            end
+          end
+        end
+
+        def extract_hash_value(hash, key)
+          has_key = hash.key?(key.to_sym) || hash.key?(key.to_s)
+          if has_key
+            hash_value = hash[key.to_sym] || hash[key.to_s]
+            ValueProcessor.process(hash_value)
+          else
+            "—" # Missing hash key
+          end
+        end
+
+        def handle_non_hash_value(original_row, index, has_type_column)
+          original_value = original_row[has_type_column ? (index + 2) : (index + 1)]
+          if original_value.to_s.include?("🚫")
+            "🚫 Not defined"
+          else
+            "—" # Non-hash values don't have this key
+          end
+        end
+
         def calculate_column_widths(headers, rows)
           col_count = headers.length
-          widths = Array.new(col_count, 0)
+          widths = initialize_column_widths(col_count, headers)
 
-          # Check header widths
+          update_widths_from_rows(widths, rows, col_count)
+          apply_minimum_widths(widths)
+        end
+
+        def initialize_column_widths(col_count, headers)
+          widths = Array.new(col_count, 0)
           headers.each_with_index do |header, i|
             widths[i] = [widths[i], header.to_s.length].max
           end
+          widths
+        end
 
-          # Check data row widths
+        def update_widths_from_rows(widths, rows, col_count)
           rows.each do |row|
             row.each_with_index do |cell, i|
               next if i >= col_count
 
-              cell_width = cell.to_s.length
-              # Apply max width limit for readability
-              cell_width = [@max_column_width, cell_width].min if @table_style == :compact
+              cell_width = calculate_cell_width(cell)
               widths[i] = [widths[i], cell_width].max
             end
           end
+        end
 
-          # Apply minimum width
+        def calculate_cell_width(cell)
+          cell_width = cell.to_s.length
+          # Apply max width limit for readability
+          @table_style == :compact ? [@max_column_width, cell_width].min : cell_width
+        end
+
+        def apply_minimum_widths(widths)
           widths.map { |w| [w, @min_column_width].max }
         end
 
         def build_row(cells, col_widths)
-          formatted_cells = cells.each_with_index.map do |cell, i|
+          formatted_cells = format_cells(cells, col_widths)
+          "|#{formatted_cells.join("|")}|"
+        end
+
+        def format_cells(cells, col_widths)
+          cells.each_with_index.map do |cell, i|
             width = col_widths[i] || 10
-            cell_str = cell.to_s
-
-            # Truncate if needed for compact style
-            if @table_style == :compact && cell_str.length > @max_column_width
-              cell_str = "#{cell_str[0...(@max_column_width - 3)]}..."
-            end
-
+            cell_str = format_cell_content(cell)
             " #{cell_str.ljust(width)} "
           end
+        end
 
-          "|" + formatted_cells.join("|") + "|"
+        def format_cell_content(cell)
+          cell_str = cell.to_s
+          return cell_str unless @table_style == :compact && cell_str.length > @max_column_width
+
+          "#{cell_str[0...(@max_column_width - 3)]}..."
         end
 
         def build_separator(col_widths)
           separators = col_widths.map { |width| "-" * (width + 2) }
-          "|" + separators.join("|") + "|"
+          "|#{separators.join("|")}|"
         end
       end
     end
