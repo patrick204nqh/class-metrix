@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "class_metrix/version"
+require_relative "class_metrix/extractors"
 require_relative "class_metrix/extractor"
 
 module ClassMetrix

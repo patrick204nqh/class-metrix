@@ -189,15 +189,15 @@ module ClassMetrix
         handle_errors: @handle_errors,
         options: extraction_options
       }
-      MultiTypeExtractor.new(@classes, @types, @filters, extraction_config).extract
+      Extractors::MultiTypeExtractor.new(@classes, @types, @filters, extraction_config).extract
     end
 
     def get_extractor(type)
       case type
       when :constants
-        ConstantsExtractor.new(@classes, @filters, @handle_errors, extraction_options)
+        Extractors::ConstantsExtractor.new(@classes, @filters, @handle_errors, extraction_options)
       when :class_methods
-        MethodsExtractor.new(@classes, @filters, @handle_errors, extraction_options)
+        Extractors::MethodsExtractor.new(@classes, @filters, @handle_errors, extraction_options)
       else
         raise ArgumentError, "Unknown extraction type: #{type}"
       end
