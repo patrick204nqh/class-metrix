@@ -42,7 +42,7 @@ jobs:
           COVERAGE: true
 
       - name: Upload coverage to Qlty (Ruby ${{ env.RUBY_VERSION }} only)
-        if: matrix.ruby == ${{ env.RUBY_VERSION }}
+        if: matrix.ruby == env.RUBY_VERSION
         uses: qltysh/qlty-action/coverage@v1
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}

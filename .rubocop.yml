@@ -4,7 +4,9 @@ AllCops:
   NewCops: enable
   Exclude:
     - bin/*
+    - config/**/*
     - examples/**/*
+    - tmp/**/*
     - vendor/**/*
     - node_modules/**/*
     - .ruby-lsp/**/*
