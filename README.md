@@ -531,8 +531,5 @@ This gem is available as open source under the terms of the [MIT License](LICENS
 ## 🔗 Links
 
 - [Documentation](https://github.com/patrick204nqh/class-metrix/wiki)
-- [Examples](examples/)
-- [Build Guide](BUILD_GUIDE.md)
-- [VS Code Setup](.vscode/README.md) - Complete development environment setup
 - [Changelog](CHANGELOG.md)
-- [Release Guide](RELEASE_GUIDE.md)
+- [Examples](examples/)

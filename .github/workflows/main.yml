@@ -9,13 +9,32 @@ on:
   push:
     branches: [master, main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 env:
   COVERAGE: true
   RUBY_VERSION: "3.3"
+  CI: true
 
 jobs:
+  # Skip CI for draft PRs and dependency updates
+  should-skip:
+    name: Check if CI should be skipped
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: "same_content_newer"
+          skip_after_successful_duplicate: "true"
+          paths_ignore: '["**/*.md", "docs/**", "examples/**", "*.md"]'
+
   test:
+    needs: should-skip
+    if: needs.should-skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby }} Tests
     strategy:
@@ -42,13 +61,23 @@ jobs:
           COVERAGE: true
 
       - name: Upload coverage to Qlty (Ruby ${{ env.RUBY_VERSION }} only)
-        if: matrix.ruby == env.RUBY_VERSION
+        if: matrix.ruby == env.RUBY_VERSION && success()
         uses: qltysh/qlty-action/coverage@v1
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: coverage/.resultset.json
 
+      - name: Upload coverage artifacts
+        if: matrix.ruby == env.RUBY_VERSION && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-ruby-${{ matrix.ruby }}
+          path: coverage/
+          retention-days: 7
+
   security:
+    needs: should-skip
+    if: needs.should-skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     name: Security Scan
     steps:
@@ -87,6 +116,8 @@ jobs:
           retention-days: 30
 
   quality:
+    needs: should-skip
+    if: needs.should-skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     name: Code Quality
     steps:
@@ -103,6 +134,8 @@ jobs:
         run: bundle exec rubocop --format github
 
   compatibility:
+    needs: should-skip
+    if: needs.should-skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     name: Compatibility Check
     steps:
