@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-06-08
+
+### Added
+
+- Enhance changelog generation and update release guide for automated workflows
+- Update CI and release workflows with Slack notifications and refine branch handling
+- [EXPERIMENT] feat: Enhance release workflow with version validation and dry run support
+- Add skip CI job for draft PRs and dependency updates in workflow
+- Enhance CI workflow with Brakeman security scans and coverage reporting
+- Enable test coverage reporting in CI workflow
+- Integrate Qlty for code quality checks, add Brakeman for security scanning, and enhance coverage reporting
+- Add Qlty integration and various formatting tasks to VS Code
+
+### Changed
+
+- Deps-dev(deps-dev): update brakeman requirement from ~> 6.0 to ~> 7.0
+- Bump the production-dependencies group with 2 updates
+
+### Fixed
+
+- Exclude Rakefile from RuboCop checks
+- Correct conditional syntax for Qlty coverage upload and update RuboCop exclusions
+- Correct syntax for accessing QLTY coverage token in CI workflow
+- Update dependabot assignee to dependabot[bot] and adjust RuboCop naming configurations
+- Adjust coverage thresholds for improved test accuracy
+
+### Maintenance
+
+- Bump version to 1.0.2 in Gemfile.lock and version.rb
+
 ## [1.0.1] - 2025-06-08
 
 ## [1.0.0] - 2025-06-07

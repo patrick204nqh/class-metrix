@@ -344,7 +344,7 @@ class ReleaseManager
 
     content.gsub(
       "## [Unreleased]",
-      "## [Unreleased]\n\n## [#{new_version}] - #{today}\n#{changelog_entries}"
+      "## [Unreleased]\n\n## [#{new_version}] - #{today}#{changelog_entries}"
     )
   end
 
