@@ -1,0 +1,75 @@
+version: 2
+updates:
+  # Ruby dependencies (Bundler)
+  - package-ecosystem: "bundler"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "patrick204nqh"
+    assignees:
+      - "patrick204nqh"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ruby"
+      - "automated"
+    # Group related dependencies together
+    groups:
+      # Development and testing tools
+      development-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "rspec*"
+          - "rubocop*"
+          - "simplecov*"
+          - "brakeman*"
+          - "steep*"
+          - "debug*"
+          - "yard*"
+          - "rake*"
+
+      # Production dependencies
+      production-dependencies:
+        dependency-type: "production"
+
+    # Security updates get priority
+    allow:
+      - dependency-type: "all"
+    ignore:
+      # Don't update Ruby version automatically
+      - dependency-name: "ruby"
+
+  # GitHub Actions updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "patrick204nqh"
+    assignees:
+      - "patrick204nqh"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "github-actions"
+      - "ci"
+      - "automated"
+    groups:
+      # Group common action updates
+      ci-actions:
+        patterns:
+          - "actions/*"
+          - "github/codeql-action"
+          - "ruby/setup-ruby"
+          - "qltysh/qlty-action"

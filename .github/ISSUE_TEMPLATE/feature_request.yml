@@ -1,0 +1,94 @@
+name: 🚀 Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: ["patrick204nqh"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! 🎉
+
+        Please provide as much detail as possible to help us understand your request.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 🤔 Problem Statement
+      description: What problem does this feature solve? What's the current limitation?
+      placeholder: Describe the problem or limitation you're experiencing...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: What would you like to see implemented?
+      placeholder: Describe your ideal solution...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: Describe any alternative solutions you've thought about...
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: 📋 Use Case
+      description: Provide a concrete example of how this feature would be used
+      placeholder: |
+        Example scenario:
+        1. User has X situation
+        2. They would use this feature by...
+        3. The result would be...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 📊 Priority
+      description: How important is this feature to you?
+      options:
+        - "Low - Nice to have"
+        - "Medium - Would improve workflow"
+        - "High - Blocking current work"
+        - "Critical - Essential for adoption"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: 🛠️ Implementation
+      description: Are you willing to help implement this feature?
+      options:
+        - label: I would be willing to implement this feature
+        - label: I would be willing to help test this feature
+        - label: I would be willing to write documentation for this feature
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: 📝 Additional Context
+      description: Add any other context, screenshots, or examples about the feature request
+      placeholder: Any additional information, links, or examples...
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have provided a clear problem statement and solution
+          required: true
+        - label: This feature aligns with the project's goals
+          required: true

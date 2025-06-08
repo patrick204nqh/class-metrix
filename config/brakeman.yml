@@ -1,0 +1,37 @@
+# Brakeman configuration for ClassMetrix (Ruby Gem)
+# https://brakemanscanner.org/docs/options/
+
+# Application settings
+app_path: "."
+rails: false
+
+# Files to scan (gem-specific)
+only_files:
+  - "lib/**/*.rb"
+
+# Skip certain files
+skip_files:
+  - "spec/**/*.rb"
+  - "test/**/*.rb"
+  - "examples/**/*.rb"
+  - "bin/**/*"
+  - "vendor/**/*"
+  - "tmp/**/*"
+  - "coverage/**/*"
+
+# Security check configuration
+min_confidence: 2
+exit_on_warn: false
+exit_on_error: false
+
+# Output configuration
+format: text
+output_file: "tmp/brakeman-report.txt"
+ignore_file: ".brakeman.ignore"
+
+# Display options
+quiet: false
+summary: true
+
+# Force scan even for non-Rails apps
+force: true

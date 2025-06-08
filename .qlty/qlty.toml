@@ -41,6 +41,7 @@ exclude_patterns = [
   "**/testdata/**",
   "**/vendor/**",
   # Project-specific exclusions
+  "**/.github/**",           # GitHub configuration files
   "**/examples/**",          # Example code doesn't need strict formatting
   "**/docs/**",              # Documentation files are less strict
   "**/.vscode/**",           # VS Code configuration files

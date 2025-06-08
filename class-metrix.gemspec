@@ -36,9 +36,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Development dependencies
+  spec.add_development_dependency "brakeman", "~> 6.0"
   spec.add_development_dependency "rbs", "~> 3.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rubocop", "~> 1.0"
+  spec.add_development_dependency "simplecov", "~> 0.22"
+  spec.add_development_dependency "simplecov_json_formatter", "~> 0.1"
   spec.add_development_dependency "steep", "~> 1.0"
 
   # For more information and examples about making a new gem, check out our
