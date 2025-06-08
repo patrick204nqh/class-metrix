@@ -57,7 +57,7 @@ updates:
     reviewers:
       - "patrick204nqh"
     assignees:
-      - "patrick204nqh"
+      - "dependabot[bot]"
     commit-message:
       prefix: "ci"
       include: "scope"

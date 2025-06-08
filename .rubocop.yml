@@ -51,8 +51,11 @@ Layout/LineLength:
 Naming/AccessorMethodName:
   Enabled: false # Allow get_ prefixed methods
 
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Enabled: false # Allow has_ prefixed methods
+
+Naming/PredicateMethod:
+  Enabled: false # Allow boolean methods without ? suffix in tests
 
 # Optional boolean parameters
 Style/OptionalBooleanParameter:
