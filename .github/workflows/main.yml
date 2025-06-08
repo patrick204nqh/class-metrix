@@ -232,6 +232,11 @@ jobs:
     if: always()
     needs: [test, security, quality, compatibility]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Determine CI status
         id: ci_status
         run: |
@@ -264,17 +269,17 @@ jobs:
       - name: Send CI status notification
         if: steps.ci_status.outputs.status && env.SLACK_WEBHOOK_URL
         run: |
-          # Get commit info for better context
-          COMMIT_MSG=$(git log -1 --pretty=format:"%s" | head -c 100)
-          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
-          COMMIT_SHA=$(git log -1 --pretty=format:"%h")
-
+          # Get commit info for better context (with fallbacks)
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null | head -c 100 || echo "Latest commit")
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" 2>/dev/null || echo "${{ github.actor }}")
+          COMMIT_SHA=$(git log -1 --pretty=format:"%h" 2>/dev/null || echo "${GITHUB_SHA:0:7}")
+          
           # Calculate job status indicators
           TEST_ICON=$([[ "${{ needs.test.result }}" == "success" ]] && echo "✅" || echo "❌")
           SECURITY_ICON=$([[ "${{ needs.security.result }}" == "success" ]] && echo "🔒" || echo "🚨")
           QUALITY_ICON=$([[ "${{ needs.quality.result }}" == "success" ]] && echo "⭐" || echo "⚠️")
           COMPAT_ICON=$([[ "${{ needs.compatibility.result }}" == "success" ]] && echo "🔗" || echo "💔")
-
+          
           curl -X POST -H 'Content-type: application/json' \
             --data "{
               \"channel\": \"#cicd-notifications\",
