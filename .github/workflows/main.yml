@@ -26,8 +26,11 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
-      - name: Run tests
-        run: bundle exec rake spec
+      - name: Run tests with coverage
+        run: |
+          bundle exec rake spec
+        env:
+          COVERAGE: true
 
       - name: Run RuboCop
         run: bundle exec rake rubocop
