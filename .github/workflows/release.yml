@@ -1,23 +1,108 @@
 name: Release Gem
 
 permissions:
-  contents: read
+  contents: write
   packages: write
+  id-token: write
 
 on:
   push:
     tags:
       - v*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., 1.0.2)"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry run (skip actual publishing)"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  RUBY_VERSION: "3.3"
 
 jobs:
-  test:
+  validate-release:
     runs-on: ubuntu-latest
+    name: Validate Release
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
+      should_release: ${{ steps.validate.outputs.should_release }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag or input
+        id: extract_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            echo "Manual release triggered for version: $VERSION"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "Tag-triggered release for version: $VERSION"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+
+      - name: Validate version format
+        id: validate
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          # Check semantic versioning format
+          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected semantic versioning format: X.Y.Z[-prerelease][+build]"
+            exit 1
+          fi
+
+          # Verify version consistency with gemspec
+          GEMSPEC_VERSION=$(ruby -e "require './lib/class_metrix/version'; puts ClassMetrix::VERSION")
+          echo "Gemspec version: $GEMSPEC_VERSION"
+          echo "Release version: $VERSION"
+
+          if [ "$GEMSPEC_VERSION" != "$VERSION" ]; then
+            echo "❌ Version mismatch!"
+            echo "Gemspec version: $GEMSPEC_VERSION"
+            echo "Release version: $VERSION"
+            echo "Please update lib/class_metrix/version.rb to match the release version"
+            exit 1
+          fi
+
+          # Check if this version already exists on RubyGems
+          if gem list class-metrix --remote --exact | grep -q "($VERSION)"; then
+            echo "❌ Version $VERSION already exists on RubyGems"
+            exit 1
+          fi
+
+          echo "✅ Version validation passed"
+          echo "should_release=true" >> $GITHUB_OUTPUT
+
+  test:
+    needs: validate-release
+    runs-on: ubuntu-latest
+    name: Test Ruby ${{ matrix.ruby }}
+    if: needs.validate-release.outputs.should_release == 'true'
     strategy:
+      fail-fast: true
       matrix:
         ruby: ["3.2", "3.3"]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Ruby ${{ matrix.ruby }}
         uses: ruby/setup-ruby@v1
@@ -25,48 +110,74 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
-      - name: Run tests
-        run: bundle exec rake spec
+      - name: Run comprehensive tests
+        run: |
+          echo "🧪 Running tests for Ruby ${{ matrix.ruby }}"
+          bundle exec rake spec
 
-      - name: Run RuboCop
-        run: bundle exec rake rubocop
+      - name: Run security scan
+        if: matrix.ruby == env.RUBY_VERSION
+        run: |
+          echo "🔒 Running security scan"
+          bundle exec brakeman --force --format json --output tmp/brakeman-release.json --exit-on-warn || true
 
-  release:
-    needs: test
+      - name: Run quality checks
+        if: matrix.ruby == env.RUBY_VERSION
+        run: |
+          echo "📊 Running quality checks"
+          bundle exec rubocop
+
+  build-and-publish:
+    needs: [validate-release, test]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    name: Build and Publish Gem
+    if: needs.validate-release.outputs.should_release == 'true'
+    environment:
+      name: production
+      url: https://rubygems.org/gems/class-metrix
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3"
+          ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
 
-      - name: Extract version from tag
-        id: extract_version
+      - name: Build gem
+        id: build
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          echo "🔨 Building gem version $VERSION"
+          gem build class-metrix.gemspec
 
-      - name: Verify version consistency
-        run: |
-          GEMSPEC_VERSION=$(ruby -e "require './lib/class_metrix/version'; puts ClassMetrix::VERSION")
-          TAG_VERSION="${{ steps.extract_version.outputs.version }}"
-          echo "Gemspec version: $GEMSPEC_VERSION"
-          echo "Tag version: $TAG_VERSION"
-          if [ "$GEMSPEC_VERSION" != "$TAG_VERSION" ]; then
-            echo "Version mismatch! Gemspec: $GEMSPEC_VERSION, Tag: $TAG_VERSION"
+          # Verify gem was built
+          GEM_FILE="class-metrix-${VERSION}.gem"
+          if [ ! -f "$GEM_FILE" ]; then
+            echo "❌ Gem file not found: $GEM_FILE"
             exit 1
           fi
 
-      - name: Build gem
-        run: gem build class-metrix.gemspec
+          # Test gem installation locally
+          echo "🧪 Testing gem installation"
+          gem install "$GEM_FILE" --local
+
+          # Verify gem functionality
+          ruby -e "require 'class_metrix'; puts '✅ Gem loads successfully'"
+
+          echo "gem_file=$GEM_FILE" >> $GITHUB_OUTPUT
+
+      - name: Dry run check
+        if: github.event.inputs.dry_run == 'true'
+        run: |
+          echo "🏃‍♂️ DRY RUN MODE - Skipping actual publishing"
+          echo "Would publish: ${{ steps.build.outputs.gem_file }}"
+          exit 0
 
       - name: Setup RubyGems credentials
+        if: github.event.inputs.dry_run != 'true'
         run: |
           mkdir -p ~/.gem
           cat > ~/.gem/credentials << EOF
@@ -76,31 +187,83 @@ jobs:
           chmod 0600 ~/.gem/credentials
 
       - name: Publish to RubyGems
+        if: github.event.inputs.dry_run != 'true'
+        id: publish
         run: |
-          gem push class-metrix-${{ steps.extract_version.outputs.version }}.gem
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          GEM_FILE="${{ steps.build.outputs.gem_file }}"
+
+          echo "🚀 Publishing $GEM_FILE to RubyGems"
+          gem push "$GEM_FILE"
+
+          echo "✅ Successfully published class-metrix $VERSION to RubyGems"
+          echo "published=true" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event.inputs.dry_run != 'true'
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ steps.extract_version.outputs.version }}
+          tag_name: v${{ needs.validate-release.outputs.version }}
+          name: Release ${{ needs.validate-release.outputs.version }}
           body: |
-            ## Changes in version ${{ steps.extract_version.outputs.version }}
+            ## 🚀 ClassMetrix v${{ needs.validate-release.outputs.version }}
 
-            See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
-
-            ## Installation
+            ### Installation
 
             ```bash
-            gem install class-metrix -v ${{ steps.extract_version.outputs.version }}
+            gem install class-metrix -v ${{ needs.validate-release.outputs.version }}
             ```
 
             Or add to your Gemfile:
 
             ```ruby
-            gem 'class-metrix', '~> ${{ steps.extract_version.outputs.version }}'
+            gem 'class-metrix', '~> ${{ needs.validate-release.outputs.version }}'
             ```
+
+            ### Changes
+
+            See [CHANGELOG.md](CHANGELOG.md) for detailed changes in this release.
+
+            ### Links
+
+            - 📦 [RubyGems](https://rubygems.org/gems/class-metrix/versions/${{ needs.validate-release.outputs.version }})
+            - 📚 [Documentation](https://github.com/${{ github.repository }}/blob/v${{ needs.validate-release.outputs.version }}/README.md)
+            - 🐛 [Issues](https://github.com/${{ github.repository }}/issues)
           draft: false
           prerelease: false
+          files: ${{ steps.build.outputs.gem_file }}
+
+      - name: Upload gem artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: class-metrix-gem-${{ needs.validate-release.outputs.version }}
+          path: ${{ steps.build.outputs.gem_file }}
+          retention-days: 90
+
+  post-release:
+    needs: [validate-release, build-and-publish]
+    runs-on: ubuntu-latest
+    name: Post-Release Tasks
+    if: needs.validate-release.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
+    steps:
+      - name: Verify publication
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          echo "⏳ Waiting for gem to be available on RubyGems..."
+
+          # Wait up to 5 minutes for the gem to be available
+          for i in {1..30}; do
+            if gem list class-metrix --remote --exact | grep -q "($VERSION)"; then
+              echo "✅ Gem $VERSION is now available on RubyGems"
+              break
+            fi
+            echo "Waiting... (attempt $i/30)"
+            sleep 10
+          done
+
+      - name: Notify success
+        run: |
+          echo "🎉 Release v${{ needs.validate-release.outputs.version }} completed successfully!"
+          echo "📦 Gem published to RubyGems"
+          echo "🏷️ GitHub release created"
+          echo "🔗 https://rubygems.org/gems/class-metrix/versions/${{ needs.validate-release.outputs.version }}"
