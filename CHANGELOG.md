@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Major Release - Production Ready
 
-This marks the first stable release of ClassMetrix with a comprehensive feature set and robust architecture.
+This marks the first stable release of `ClassMetrix` with a comprehensive feature set and robust architecture.
 
 ### Added
 
