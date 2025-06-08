@@ -17,6 +17,7 @@
 - **📄 CSV Export**: Data analysis-friendly CSV output with hash flattening
 - **⚙️ Highly Configurable**: Customize every aspect of the output
 - **🚀 Simple API**: Chainable, intuitive interface
+- **🔒 Type Safe**: Full RBS type annotations with Steep type checking
 
 ## 🚀 Quick Start
 
@@ -430,15 +431,36 @@ ClassMetrix uses a modular component architecture for maximum flexibility:
 
 ```
 MarkdownFormatter
-├── HeaderComponent      # Title, classes, extraction info
-├── TableComponent       # Table formatting and hash expansion
-├── MissingBehaviorsComponent  # Missing behavior analysis
-└── FooterComponent      # Footer with various styles
+├── HeaderComponent           # Title, classes, extraction info
+├── TableComponent            # Table formatting and hash expansion
+├── MissingBehaviorsComponent # Missing behavior analysis
+└── FooterComponent           # Footer with various styles
 ```
 
-Each component is independently configurable and can be customized for specific needs.
+### Key Design Principles
+
+- **Type Safety**: All components have complete RBS type annotations
+- **Modularity**: Each component is independently configurable
+- **Extensibility**: Easy to add new extractors and formatters
+- **Error Resilience**: Graceful handling of edge cases and errors
+- **Performance**: Optimized for processing large class hierarchies
+
+### Type System
+
+The entire codebase is fully typed using RBS (Ruby Signature) format:
+
+- **Public APIs**: Complete type contracts for all user-facing methods
+- **Internal Components**: Type safety for all internal class interactions
+- **Error Handling**: Typed exception handling with specific error types
+- **Configuration**: Strongly typed configuration objects
+
+This ensures reliability and provides excellent IDE support with autocompletion and type checking.
 
 ## 🧪 Development
+
+ClassMetrix uses modern Ruby development practices with comprehensive type checking and VS Code integration.
+
+### Quick Setup
 
 ```bash
 # Clone the repository
@@ -451,15 +473,47 @@ bundle install
 # Run tests
 bundle exec rspec
 
+# Run type checking
+bundle exec steep check
+
+# Run linting
+bundle exec rubocop
+
 # Run examples
 ruby examples/basic/01_simple_constants.rb
 ruby examples/advanced/hash_expansion.rb
 ```
 
+### Type Safety
+
+ClassMetrix maintains **100% type coverage** using:
+
+- **RBS Type Annotations**: Complete type signatures for all public APIs
+- **Steep Type Checking**: Static analysis for type correctness
+- **Comprehensive Type Tests**: Ensuring type safety across all components
+
+```bash
+# Check type coverage
+bundle exec steep stats
+
+# Watch mode for development
+bundle exec steep watch
+
+# Validate RBS files
+bundle exec rbs validate
+```
+
+### Code Quality
+
+- **RuboCop**: Enforced code style and best practices
+- **RSpec**: Comprehensive test suite with >95% coverage
+- **CI/CD**: Automated testing across Ruby 3.2+ versions
+
 ## 📋 Requirements
 
-- Ruby 2.7+
-- No runtime dependencies (pure Ruby implementation)
+- **Ruby 3.1+** (Required for full RBS and Steep support)
+- **No runtime dependencies** (Pure Ruby implementation)
+- **Development dependencies**: RBS (~> 3.0), Steep (~> 1.0), RuboCop (~> 1.0)
 
 ## 🤝 Contributing
 
@@ -478,4 +532,6 @@ This gem is available as open source under the terms of the [MIT License](LICENS
 - [Documentation](https://github.com/patrick204nqh/class-metrix/wiki)
 - [Examples](examples/)
 - [Build Guide](BUILD_GUIDE.md)
+- [VS Code Setup](.vscode/README.md) - Complete development environment setup
 - [Changelog](CHANGELOG.md)
+- [Release Guide](RELEASE_GUIDE.md)

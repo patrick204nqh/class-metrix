@@ -34,7 +34,7 @@ The `bin/release` script automates version bumping and changelog updates:
 # Patch release (0.1.0 → 0.1.1)
 ./bin/release --type patch
 
-# Minor release (0.1.0 → 0.2.0)  
+# Minor release (0.1.0 → 0.2.0)
 ./bin/release --type minor
 
 # Major release (0.1.0 → 1.0.0)
@@ -52,6 +52,7 @@ The `bin/release` script automates version bumping and changelog updates:
 If you prefer to do it manually:
 
 1. **Update Version**:
+
    ```ruby
    # lib/class_metrix/version.rb
    module ClassMetrix
@@ -60,15 +61,19 @@ If you prefer to do it manually:
    ```
 
 2. **Update CHANGELOG.md**:
+
    ```markdown
    ## [Unreleased]
 
    ## [0.1.1] - 2024-01-15
+
    ### Fixed
+
    - Bug fixes and improvements
    ```
 
 3. **Commit and Tag**:
+
    ```bash
    git add -A
    git commit -m "Release v0.1.1"
@@ -95,6 +100,7 @@ When you push a tag (e.g., `v0.1.1`), GitHub Actions automatically:
 ## 🔑 Setting Up RubyGems API Key
 
 1. **Generate API Key**:
+
    ```bash
    gem signin
    # Get your API key from ~/.gem/credentials
@@ -132,6 +138,7 @@ Ensure the version in `lib/class_metrix/version.rb` matches your git tag.
 ### RubyGems Push Failed
 
 Check that:
+
 1. `RUBYGEMS_API_KEY` secret is set correctly
 2. You have push permissions for the gem
 3. The version doesn't already exist on RubyGems
@@ -155,4 +162,4 @@ After a successful release:
 1. **Verify on RubyGems**: Check that the new version appears on [rubygems.org](https://rubygems.org/gems/class-metrix)
 2. **Test installation**: `gem install class-metrix -v X.X.X`
 3. **Update dependencies**: In projects using the gem
-4. **Announce**: Consider announcements on relevant channels 
+4. **Announce**: Consider announcements on relevant channels

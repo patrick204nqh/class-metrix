@@ -16,6 +16,7 @@ ruby examples/inheritance_and_modules.rb  # Inheritance and module analysis
 ### Core Examples
 
 - **`basic_usage.rb`** - Basic constant and method extraction
+
   - Simple class comparison
   - Filtering and multi-type extraction
   - Hash expansion basics
@@ -122,43 +123,48 @@ ClassMetrix.extract(:constants)
 ## 📊 Example Output
 
 ### Basic Comparison
+
 ```markdown
-| Constant | User    | Admin   |
-|----------|---------|---------|
-| ROLE     | user    | admin   |
-| TIMEOUT  | 3600    | 7200    |
+| Constant | User | Admin |
+| -------- | ---- | ----- |
+| ROLE     | user | admin |
+| TIMEOUT  | 3600 | 7200  |
 ```
 
 ### With Inheritance
+
 ```markdown
-| Constant      | DatabaseService | CacheService |
-|---------------|-----------------|--------------|
-| SERVICE_NAME  | database        | cache        |
-| SERVICE_VERSION| 1.0            | 1.0          |
-| DEFAULT_TIMEOUT| 30             | 30           |
+| Constant        | DatabaseService | CacheService |
+| --------------- | --------------- | ------------ |
+| SERVICE_NAME    | database        | cache        |
+| SERVICE_VERSION | 1.0             | 1.0          |
+| DEFAULT_TIMEOUT | 30              | 30           |
 ```
 
 ### Hash Expansion
+
 ```markdown
-| Method        | Service1        | Service2        |
-|---------------|-----------------|-----------------|
-| config        | {...}           | {...}           |
-| config.host   | localhost       | production.com  |
-| config.port   | 3000            | 443             |
-| config.ssl    | ❌              | ✅              |
+| Method      | Service1  | Service2       |
+| ----------- | --------- | -------------- |
+| config      | {...}     | {...}          |
+| config.host | localhost | production.com |
+| config.port | 3000      | 443            |
+| config.ssl  | ❌        | ✅             |
 ```
 
 ## 🛠️ API Reference
 
 ### Extraction Types
+
 - `:constants` - Class constants
 - `:class_methods` - Class methods
 
 ### Options
+
 - `.from(classes)` - Classes to analyze (array)
 - `.filter(pattern)` - Filter by name (regex or string)
 - `.include_inherited` - Include parent class behaviors
-- `.include_modules` - Include module behaviors  
+- `.include_modules` - Include module behaviors
 - `.include_all` - Include inherited + modules
 - `.expand_hashes` - Expand hash values (shows main rows by default)
 - `.show_only_main` - Show only main rows (collapsed hashes) - **Default**
@@ -197,6 +203,6 @@ ruby examples/inheritance_and_modules.rb
 # Advanced features
 ruby examples/advanced/hash_expansion.rb
 
-# Real-world scenarios  
+# Real-world scenarios
 ruby examples/real_world/microservices_audit.rb
 ```

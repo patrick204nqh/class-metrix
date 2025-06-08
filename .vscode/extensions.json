@@ -4,17 +4,13 @@
     "shopify.ruby-lsp",
 
     // RBS and Steep support (type checking)
-    "soutaro.rbs-syntax",
     "soutaro.steep-vscode",
-    "mateuszdrewniak.rbs-snippets",
 
     // Debugging support
     "koichisasada.vscode-rdbg",
 
     // Markdown support
     "esbenp.prettier-vscode",
-    "yzhang.markdown-all-in-one",
-    "davidanson.vscode-markdownlint",
 
     // General productivity
     "ms-vscode.vscode-json",
@@ -22,10 +18,6 @@
     "editorconfig.editorconfig",
 
     // Git integration
-    "eamodio.gitlens",
-
-    // Additional helpful extensions
-    "ms-vscode.test-adapter-converter",
-    "hbenl.vscode-test-explorer"
+    "eamodio.gitlens"
   ]
 }

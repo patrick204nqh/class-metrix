@@ -1,14 +1,4 @@
 {
-  // Ruby language settings
-  "ruby.format": "rubocop",
-  "ruby.lint": {
-    "rubocop": {
-      "useBundler": true
-    }
-  },
-  "ruby.useLanguageServer": true,
-  "ruby.intellisense": "rubyLsp",
-
   // Auto-formatting settings
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
@@ -48,6 +38,50 @@
     "editor.rulers": [120],
     "editor.trimAutoWhitespace": true
   },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    }
+  },
+  "[yml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    }
+  },
 
   // File associations
   "files.associations": {
@@ -56,7 +90,19 @@
     "Rakefile": "ruby",
     ".rubocop.yml": "yaml",
     "*.rbs": "rbs",
-    "Steepfile": "ruby"
+    "Steepfile": "ruby",
+    "*.yaml": "yaml",
+    "*.yml": "yaml",
+    ".yamllint": "yaml",
+    ".yamllint.yaml": "yaml",
+    ".yamllint.yml": "yaml",
+    "*.json": "json",
+    "*.jsonc": "jsonc",
+    ".vscode/*.json": "jsonc",
+    "tsconfig*.json": "jsonc",
+    ".eslintrc": "jsonc",
+    ".babelrc": "jsonc",
+    ".prettierrc": "jsonc"
   },
 
   // Auto-save settings
