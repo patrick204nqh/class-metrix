@@ -276,36 +276,47 @@ jobs:
           custom_payload: |
             {
               "channel": "#cicd-notifications",
-              "username": "GitHub Actions",
+              "username": "ClassMetrix Release",
               "icon_emoji": ":rocket:",
               "attachments": [{
                 "color": "good",
                 "fallback": "ClassMetrix v${{ needs.validate-release.outputs.version }} released successfully!",
-                "title": "🚀 ClassMetrix Release Complete",
+                "title": "🚀 ClassMetrix v${{ needs.validate-release.outputs.version }} Released Successfully!",
                 "title_link": "https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.version }}",
+                "text": "A new version of ClassMetrix has been published to RubyGems and is ready for use! 🎉",
                 "fields": [
                   {
-                    "title": "Version",
-                    "value": "v${{ needs.validate-release.outputs.version }}",
+                    "title": "📦 Version",
+                    "value": "`v${{ needs.validate-release.outputs.version }}`",
                     "short": true
                   },
                   {
-                    "title": "Trigger",
-                    "value": "${{ github.event_name == 'workflow_dispatch' && 'Manual' || 'Tag Push' }}",
+                    "title": "⚡ Trigger",
+                    "value": "${{ github.event_name == 'workflow_dispatch' && '🔧 Manual Release' || '🏷️ Tag Push' }}",
                     "short": true
                   },
                   {
-                    "title": "Installation",
-                    "value": "`gem install class-metrix -v ${{ needs.validate-release.outputs.version }}`",
+                    "title": "📥 Installation",
+                    "value": "```gem install class-metrix -v ${{ needs.validate-release.outputs.version }}```",
                     "short": false
                   },
                   {
-                    "title": "Links",
-                    "value": "📦 <https://rubygems.org/gems/class-metrix/versions/${{ needs.validate-release.outputs.version }}|RubyGems> • 📚 <https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.version }}|GitHub Release>",
+                    "title": "🔗 Quick Links",
+                    "value": "📦 <https://rubygems.org/gems/class-metrix/versions/${{ needs.validate-release.outputs.version }}|RubyGems Package> • 📚 <https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.version }}|Release Notes> • 📖 <https://github.com/${{ github.repository }}|Documentation>",
                     "short": false
+                  },
+                  {
+                    "title": "👤 Released By",
+                    "value": "${{ github.actor }}",
+                    "short": true
+                  },
+                  {
+                    "title": "📂 Repository",
+                    "value": "<https://github.com/${{ github.repository }}|${{ github.repository }}>",
+                    "short": true
                   }
                 ],
-                "footer": "Released by ${{ github.actor }} • GitHub Actions",
+                "footer": "Released via GitHub Actions • Thanks for using ClassMetrix! 💎",
                 "footer_icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
                 "ts": ${{ github.event.head_commit.timestamp }}
               }]
@@ -343,32 +354,56 @@ jobs:
           custom_payload: |
             {
               "channel": "#cicd-notifications",
-              "username": "GitHub Actions",
+              "username": "ClassMetrix Release",
               "icon_emoji": ":x:",
               "attachments": [{
                 "color": "danger",
                 "fallback": "ClassMetrix release failed!",
                 "title": "❌ ClassMetrix Release Failed",
                 "title_link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "text": "The release process encountered an error and needs attention. Please check the logs for details.",
                 "fields": [
                   {
-                    "title": "Failed Step",
+                    "title": "💥 Failed Step",
                     "value": "${{ steps.failed_job.outputs.failed_step }}",
                     "short": true
                   },
                   {
-                    "title": "Version",
-                    "value": "v${{ needs.validate-release.outputs.version || github.event.inputs.version || 'Unknown' }}",
+                    "title": "📦 Version",
+                    "value": "`v${{ needs.validate-release.outputs.version || github.event.inputs.version || 'Unknown' }}`",
                     "short": true
                   },
                   {
-                    "title": "Reason",
+                    "title": "🔍 Failure Reason",
                     "value": "${{ steps.failed_job.outputs.failed_reason }}",
                     "short": false
                   },
                   {
-                    "title": "Repository",
+                    "title": "📂 Repository",
                     "value": "<https://github.com/${{ github.repository }}|${{ github.repository }}>",
+                    "short": true
+                  },
+                  {
+                    "title": "🔧 Workflow Run",
+                    "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|🔍 View Detailed Logs>",
+                    "short": true
+                  },
+                  {
+                    "title": "👤 Triggered By",
+                    "value": "${{ github.actor }}",
+                    "short": true
+                  },
+                  {
+                    "title": "📚 Troubleshooting",
+                    "value": "<https://github.com/${{ github.repository }}/blob/main/docs/RELEASE_GUIDE.md#-troubleshooting|Release Guide> • <https://github.com/${{ github.repository }}/blob/main/docs/SLACK_INTEGRATION.md|Slack Integration>",
+                    "short": true
+                  }
+                ],
+                "footer": "Release process failed • Check logs and try again",
+                "footer_icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+                "ts": ${{ github.event.head_commit.timestamp }}
+              }]
+            }
                     "short": true
                   },
                   {

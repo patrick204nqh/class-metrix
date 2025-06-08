@@ -264,26 +264,41 @@ jobs:
       - name: Send CI status notification
         if: steps.ci_status.outputs.status && env.SLACK_WEBHOOK_URL
         run: |
+          # Get commit info for better context
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s" | head -c 100)
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
+          COMMIT_SHA=$(git log -1 --pretty=format:"%h")
+
+          # Calculate job status indicators
+          TEST_ICON=$([[ "${{ needs.test.result }}" == "success" ]] && echo "✅" || echo "❌")
+          SECURITY_ICON=$([[ "${{ needs.security.result }}" == "success" ]] && echo "🔒" || echo "🚨")
+          QUALITY_ICON=$([[ "${{ needs.quality.result }}" == "success" ]] && echo "⭐" || echo "⚠️")
+          COMPAT_ICON=$([[ "${{ needs.compatibility.result }}" == "success" ]] && echo "🔗" || echo "💔")
+
           curl -X POST -H 'Content-type: application/json' \
             --data "{
               \"channel\": \"#cicd-notifications\",
-              \"username\": \"GitHub Actions CI\",
-              \"icon_emoji\":\":robot_face:\",
+              \"username\": \"ClassMetrix CI\",
+              \"icon_emoji\":\":gear:\",
               \"attachments\": [{
                 \"color\": \"${{ steps.ci_status.outputs.color }}\",
-                \"title\": \"${{ steps.ci_status.outputs.emoji }} CI Pipeline Complete\",
+                \"title\": \"${{ steps.ci_status.outputs.emoji }} ClassMetrix CI Pipeline Complete\",
                 \"title_link\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                \"text\": \"Pipeline completed for commit \`${COMMIT_SHA}\`: ${COMMIT_MSG}\",
                 \"fields\": [
-                  {\"title\": \"Repository\", \"value\": \"<https://github.com/${{ github.repository }}|${{ github.repository }}>\", \"short\": true},
-                  {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
-                  {\"title\": \"Trigger\", \"value\": \"${{ github.event_name }}\", \"short\": true},
-                  {\"title\": \"Status\", \"value\": \"${{ steps.ci_status.outputs.status }}\", \"short\": true},
-                  {\"title\": \"Tests\", \"value\": \"${{ needs.test.result }}\", \"short\": true},
-                  {\"title\": \"Security\", \"value\": \"${{ needs.security.result }}\", \"short\": true},
-                  {\"title\": \"Quality\", \"value\": \"${{ needs.quality.result }}\", \"short\": true},
-                  {\"title\": \"Compatibility\", \"value\": \"${{ needs.compatibility.result }}\", \"short\": true}
+                  {\"title\": \"📂 Repository\", \"value\": \"<https://github.com/${{ github.repository }}|${{ github.repository }}>\", \"short\": true},
+                  {\"title\": \"🌿 Branch\", \"value\": \"\`${{ github.ref_name }}\`\", \"short\": true},
+                  {\"title\": \"⚡ Trigger\", \"value\": \"${{ github.event_name }}\", \"short\": true},
+                  {\"title\": \"📊 Overall Status\", \"value\": \"${{ steps.ci_status.outputs.status }}\", \"short\": true},
+                  {\"title\": \"${TEST_ICON} Tests\", \"value\": \"${{ needs.test.result }}\", \"short\": true},
+                  {\"title\": \"${SECURITY_ICON} Security Scan\", \"value\": \"${{ needs.security.result }}\", \"short\": true},
+                  {\"title\": \"${QUALITY_ICON} Code Quality\", \"value\": \"${{ needs.quality.result }}\", \"short\": true},
+                  {\"title\": \"${COMPAT_ICON} Compatibility\", \"value\": \"${{ needs.compatibility.result }}\", \"short\": true},
+                  {\"title\": \"👤 Author\", \"value\": \"${COMMIT_AUTHOR}\", \"short\": true},
+                  {\"title\": \"🔗 Actions\", \"value\": \"<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>\", \"short\": true}
                 ],
-                \"footer\": \"ClassMetrix CI Pipeline\",
+                \"footer\": \"ClassMetrix CI • Powered by GitHub Actions\",
+                \"footer_icon\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\",
                 \"ts\": $(date +%s)
               }]
             }" \

@@ -15,17 +15,19 @@ All notifications are sent to a single channel: `#cicd-notifications`
 
 ### CI Notifications
 
-- ✅ **Pipeline Status**: Overall CI result with individual job statuses
-- 🔗 **Direct Links**: Links to workflow runs and repository
-- 📊 **Job Breakdown**: Status of tests, security, quality, and compatibility checks
-- 🎯 **Contextual Info**: Branch, trigger type, and repository details
+- ✅ **Enhanced Pipeline Status**: Comprehensive CI result with detailed job breakdown and visual indicators
+- 🔗 **Rich Context**: Commit information, author details, and direct workflow links
+- 📊 **Visual Job Status**: Individual status icons for tests (✅/❌), security (🔒/🚨), quality (⭐/⚠️), and compatibility (🔗/💔)
+- 🎯 **Smart Information**: Branch, trigger type, commit message, and repository context
+- 👤 **Developer Context**: Commit author and triggering user information
 
 ### Release Notifications
 
-- 🚀 **Release Success**: Version info, installation commands, and useful links
-- ❌ **Release Failure**: Detailed failure information and troubleshooting context
-- 📦 **RubyGems Links**: Direct links to published gems
-- 📚 **GitHub Release**: Links to release notes and documentation
+- 🚀 **Celebration-Ready Success**: Engaging success messages with installation instructions and comprehensive links
+- ❌ **Actionable Failure Info**: Detailed failure context with troubleshooting links and next steps
+- 📦 **Complete Package Info**: Version details, installation commands, and package links
+- 📚 **Documentation Links**: Direct access to release notes, RubyGems, and project documentation
+- 🔧 **Troubleshooting Support**: Built-in links to release guides and support documentation
 
 ## Setup Instructions
 
@@ -55,51 +57,66 @@ Create a `#cicd-notifications` channel in your Slack workspace where all CI/CD n
 ### CI Pipeline Complete (Success)
 
 ```
-✅ CI Pipeline Complete
-Repository: your-org/class-metrix
-Branch: main
-Trigger: push
-Status: success
-Tests: success
-Security: success
-Quality: success
-Compatibility: success
+✅ ClassMetrix CI Pipeline Complete
+Pipeline completed for commit a1b2c3d: Add new feature for enhanced metrics
+
+📂 Repository: your-org/class-metrix
+🌿 Branch: main
+⚡ Trigger: push
+📊 Overall Status: success
+✅ Tests: success
+🔒 Security Scan: success
+⭐ Code Quality: success
+🔗 Compatibility: success
+👤 Author: John Doe
+🔗 Actions: View Details
 ```
 
 ### CI Pipeline Complete (Failure)
 
 ```
-❌ CI Pipeline Complete
-Repository: your-org/class-metrix
-Branch: feature-branch
-Trigger: pull_request
-Status: failure
-Tests: failure
-Security: success
-Quality: success
-Compatibility: success
+❌ ClassMetrix CI Pipeline Complete
+Pipeline completed for commit d4e5f6g: Fix bug in extractor logic
+
+📂 Repository: your-org/class-metrix
+🌿 Branch: feature-branch
+⚡ Trigger: pull_request
+📊 Overall Status: failure
+❌ Tests: failure
+🔒 Security Scan: success
+⭐ Code Quality: success
+🔗 Compatibility: success
+👤 Author: Jane Smith
+🔗 Actions: View Details
 ```
 
 ### Release Success
 
 ```
-🚀 ClassMetrix Release Complete
-Version: v1.2.3
-Trigger: Manual
-Installation: gem install class-metrix -v 1.2.3
-Links: 📦 RubyGems • 📚 GitHub Release
+🚀 ClassMetrix v1.2.3 Released Successfully!
+A new version of ClassMetrix has been published to RubyGems and is ready for use! 🎉
+
+📦 Version: v1.2.3
+⚡ Trigger: 🔧 Manual Release
+📥 Installation: gem install class-metrix -v 1.2.3
+🔗 Quick Links: 📦 RubyGems Package • 📚 Release Notes • 📖 Documentation
+👤 Released By: maintainer
+📂 Repository: your-org/class-metrix
 ```
 
 ### Release Failure
 
 ```
 ❌ ClassMetrix Release Failed
-Failed Step: Build & Publish
-Version: v1.2.3
-Reason: Gem build or RubyGems publishing failed
-Repository: your-org/class-metrix
-Workflow Run: View Logs
-Triggered By: username
+The release process encountered an error and needs attention. Please check the logs for details.
+
+💥 Failed Step: Build & Publish
+📦 Version: v1.2.3
+🔍 Failure Reason: Gem build or RubyGems publishing failed
+📂 Repository: your-org/class-metrix
+🔧 Workflow Run: 🔍 View Detailed Logs
+👤 Triggered By: maintainer
+📚 Troubleshooting: Release Guide • Slack Integration
 ```
 
 ## Workflow Integration
@@ -196,12 +213,24 @@ The current setup provides minimal notifications. To add more:
 
 ### Notification Format
 
-All notifications use Slack's rich attachment format with:
+All notifications use Slack's rich attachment format with enhanced visual design:
 
-- Color coding (green for success, red for failure, yellow for warnings)
-- Structured fields for easy scanning
-- Direct links to relevant resources
-- Contextual information (branch, trigger, repository)
+- **Enhanced Color Coding**: Green for success, red for failure, yellow for warnings
+- **Descriptive Titles**: Clear, action-oriented titles with version information
+- **Rich Context Fields**: Structured information with emojis for easy scanning
+- **Smart Status Icons**: Visual indicators for different job types (tests, security, quality, compatibility)
+- **Actionable Links**: Direct links to logs, documentation, packages, and troubleshooting guides
+- **Developer Context**: Commit information, author details, and trigger context
+- **Professional Footer**: Branded footer with relevant timestamps and attribution
+
+### Advanced Features
+
+- **Commit Context**: Displays commit hash, message, and author information
+- **Visual Job Status**: Each CI job type has specific emoji indicators
+- **Installation Commands**: Formatted code blocks for easy copy-paste
+- **Comprehensive Links**: Multiple relevant links in organized sections
+- **Troubleshooting Integration**: Built-in links to documentation and guides
+- **Celebration Messaging**: Success notifications with engaging, positive language
 
 ## Security Considerations
 
