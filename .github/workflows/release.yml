@@ -267,3 +267,125 @@ jobs:
           echo "📦 Gem published to RubyGems"
           echo "🏷️ GitHub release created"
           echo "🔗 https://rubygems.org/gems/class-metrix/versions/${{ needs.validate-release.outputs.version }}"
+
+      - name: Notify Slack - Release Complete
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          custom_payload: |
+            {
+              "channel": "#cicd-notifications",
+              "username": "GitHub Actions",
+              "icon_emoji": ":rocket:",
+              "attachments": [{
+                "color": "good",
+                "fallback": "ClassMetrix v${{ needs.validate-release.outputs.version }} released successfully!",
+                "title": "🚀 ClassMetrix Release Complete",
+                "title_link": "https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.version }}",
+                "fields": [
+                  {
+                    "title": "Version",
+                    "value": "v${{ needs.validate-release.outputs.version }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Trigger",
+                    "value": "${{ github.event_name == 'workflow_dispatch' && 'Manual' || 'Tag Push' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Installation",
+                    "value": "`gem install class-metrix -v ${{ needs.validate-release.outputs.version }}`",
+                    "short": false
+                  },
+                  {
+                    "title": "Links",
+                    "value": "📦 <https://rubygems.org/gems/class-metrix/versions/${{ needs.validate-release.outputs.version }}|RubyGems> • 📚 <https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.version }}|GitHub Release>",
+                    "short": false
+                  }
+                ],
+                "footer": "Released by ${{ github.actor }} • GitHub Actions",
+                "footer_icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+                "ts": ${{ github.event.head_commit.timestamp }}
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  notify-failure:
+    needs: [validate-release, build-and-publish, post-release]
+    runs-on: ubuntu-latest
+    name: Notify on Failure
+    if: always() && (failure() || cancelled()) && needs.validate-release.outputs.should_release == 'true'
+    steps:
+      - name: Determine failed job
+        id: failed_job
+        run: |
+          if [[ "${{ needs.validate-release.result }}" == "failure" ]]; then
+            echo "failed_step=Validation" >> $GITHUB_OUTPUT
+            echo "failed_reason=Version validation or format check failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.build-and-publish.result }}" == "failure" ]]; then
+            echo "failed_step=Build & Publish" >> $GITHUB_OUTPUT
+            echo "failed_reason=Gem build or RubyGems publishing failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.post-release.result }}" == "failure" ]]; then
+            echo "failed_step=Post-Release" >> $GITHUB_OUTPUT
+            echo "failed_reason=Release verification or notification failed" >> $GITHUB_OUTPUT
+          else
+            echo "failed_step=Unknown" >> $GITHUB_OUTPUT
+            echo "failed_reason=Workflow was cancelled or failed unexpectedly" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Notify Slack - Release Failure
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          custom_payload: |
+            {
+              "channel": "#cicd-notifications",
+              "username": "GitHub Actions",
+              "icon_emoji": ":x:",
+              "attachments": [{
+                "color": "danger",
+                "fallback": "ClassMetrix release failed!",
+                "title": "❌ ClassMetrix Release Failed",
+                "title_link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "fields": [
+                  {
+                    "title": "Failed Step",
+                    "value": "${{ steps.failed_job.outputs.failed_step }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Version",
+                    "value": "v${{ needs.validate-release.outputs.version || github.event.inputs.version || 'Unknown' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Reason",
+                    "value": "${{ steps.failed_job.outputs.failed_reason }}",
+                    "short": false
+                  },
+                  {
+                    "title": "Repository",
+                    "value": "<https://github.com/${{ github.repository }}|${{ github.repository }}>",
+                    "short": true
+                  },
+                  {
+                    "title": "Workflow Run",
+                    "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Logs>",
+                    "short": true
+                  },
+                  {
+                    "title": "Triggered By",
+                    "value": "${{ github.actor }}",
+                    "short": true
+                  }
+                ],
+                "footer": "GitHub Actions",
+                "footer_icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+                "ts": ${{ github.event.head_commit.timestamp }}
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

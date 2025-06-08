@@ -7,7 +7,7 @@ permissions:
 
 on:
   push:
-    branches: [master, main]
+    branches: [master]
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
@@ -61,7 +61,7 @@ jobs:
           COVERAGE: true
 
       - name: Upload coverage to Qlty (Ruby ${{ env.RUBY_VERSION }} only)
-        if: matrix.ruby == env.RUBY_VERSION && success()
+        if: matrix.ruby == env.RUBY_VERSION && success() && github.ref == 'refs/heads/master'
         uses: qltysh/qlty-action/coverage@v1
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
@@ -170,7 +170,7 @@ jobs:
   release-check:
     runs-on: ubuntu-latest
     name: Release Readiness
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     needs: [test, security, quality, compatibility]
     steps:
       - name: Checkout code
@@ -189,3 +189,68 @@ jobs:
           echo "🔒 Security: Scanned"
           echo "📊 Quality: Checked"
           echo "🔧 Compatibility: Verified"
+
+  ci-status:
+    runs-on: ubuntu-latest
+    name: CI Status Notification
+    if: always()
+    needs: [test, security, quality, compatibility]
+    steps:
+      - name: Determine CI status
+        id: ci_status
+        run: |
+          # Check the status of all jobs
+          TEST_STATUS="${{ needs.test.result }}"
+          SECURITY_STATUS="${{ needs.security.result }}"
+          QUALITY_STATUS="${{ needs.quality.result }}"
+          COMPATIBILITY_STATUS="${{ needs.compatibility.result }}"
+
+          echo "Test: $TEST_STATUS"
+          echo "Security: $SECURITY_STATUS"
+          echo "Quality: $QUALITY_STATUS"
+          echo "Compatibility: $COMPATIBILITY_STATUS"
+
+          # Determine overall status
+          if [[ "$TEST_STATUS" == "success" && "$SECURITY_STATUS" == "success" && "$QUALITY_STATUS" == "success" && "$COMPATIBILITY_STATUS" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+          elif [[ "$TEST_STATUS" == "failure" || "$SECURITY_STATUS" == "failure" || "$QUALITY_STATUS" == "failure" || "$COMPATIBILITY_STATUS" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+          else
+            echo "status=partial" >> $GITHUB_OUTPUT
+            echo "color=warning" >> $GITHUB_OUTPUT
+            echo "emoji=⚠️" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send CI status notification
+        if: steps.ci_status.outputs.status && env.SLACK_WEBHOOK_URL
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"channel\": \"#cicd-notifications\",
+              \"username\": \"GitHub Actions CI\",
+              \"icon_emoji\":\":robot_face:\",
+              \"attachments\": [{
+                \"color\": \"${{ steps.ci_status.outputs.color }}\",
+                \"title\": \"${{ steps.ci_status.outputs.emoji }} CI Pipeline Complete\",
+                \"title_link\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                \"fields\": [
+                  {\"title\": \"Repository\", \"value\": \"<https://github.com/${{ github.repository }}|${{ github.repository }}>\", \"short\": true},
+                  {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
+                  {\"title\": \"Trigger\", \"value\": \"${{ github.event_name }}\", \"short\": true},
+                  {\"title\": \"Status\", \"value\": \"${{ steps.ci_status.outputs.status }}\", \"short\": true},
+                  {\"title\": \"Tests\", \"value\": \"${{ needs.test.result }}\", \"short\": true},
+                  {\"title\": \"Security\", \"value\": \"${{ needs.security.result }}\", \"short\": true},
+                  {\"title\": \"Quality\", \"value\": \"${{ needs.quality.result }}\", \"short\": true},
+                  {\"title\": \"Compatibility\", \"value\": \"${{ needs.compatibility.result }}\", \"short\": true}
+                ],
+                \"footer\": \"ClassMetrix CI Pipeline\",
+                \"ts\": $(date +%s)
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}" || echo "Failed to send Slack notification"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
