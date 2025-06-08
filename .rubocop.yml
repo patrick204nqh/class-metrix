@@ -10,6 +10,7 @@ AllCops:
     - vendor/**/*
     - node_modules/**/*
     - .ruby-lsp/**/*
+    - Rakefile
 
 # String literal styles
 Style/StringLiterals:
