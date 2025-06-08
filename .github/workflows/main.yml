@@ -17,20 +17,56 @@ env:
   CI: true
 
 jobs:
-  # Skip CI for draft PRs and dependency updates
+  # Skip CI for draft PRs or when changes are only in docs/examples/markdown
   should-skip:
     name: Check if CI should be skipped
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
     outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+      should_skip: ${{ steps.check.outputs.should_skip }}
     steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5
+      - name: Determine if CI should be skipped
+        id: check
+        run: |
+          # Always run CI for push events
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "should_skip=false" >> $GITHUB_OUTPUT
+            echo "✅ Running CI: Push event"
+            exit 0
+          fi
+
+          # Skip CI for draft PRs
+          if [[ "${{ github.event.pull_request.draft }}" == "true" ]]; then
+            echo "should_skip=true" >> $GITHUB_OUTPUT
+            echo "⏭️ Skipping CI: Draft PR"
+            exit 0
+          fi
+
+          echo "should_skip=false" >> $GITHUB_OUTPUT
+          echo "✅ Running CI: Ready for review PR"
+
+      - name: Checkout code to check file changes
+        if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+        uses: actions/checkout@v4
         with:
-          concurrent_skipping: "same_content_newer"
-          skip_after_successful_duplicate: "true"
-          paths_ignore: '["**/*.md", "docs/**", "examples/**", "*.md"]'
+          fetch-depth: 0
+
+      - name: Check if only docs/examples/markdown changed
+        if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+        run: |
+          # Get changed files between base and head
+          git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
+
+          echo "📝 Changed files:"
+          cat changed_files.txt
+
+          # Check if any non-docs/examples/markdown files changed
+          if grep -v -E '^(docs/|examples/|.*\.md$)' changed_files.txt; then
+            echo "✅ Code files changed - running CI"
+            echo "should_skip=false" >> $GITHUB_OUTPUT
+          else
+            echo "⏭️ Only docs/examples/markdown files changed - skipping CI"
+            echo "should_skip=true" >> $GITHUB_OUTPUT
+          fi
 
   test:
     needs: should-skip
