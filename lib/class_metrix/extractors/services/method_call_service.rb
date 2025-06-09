@@ -29,7 +29,9 @@ module ClassMetrix
           if method_info[:callable]
             method_info[:callable].call
           else
-            klass.public_send(method_name)
+            # Use send instead of public_send to access private methods
+            # This is safe in this context since we're intentionally extracting method values
+            klass.send(method_name)
           end
         end
 

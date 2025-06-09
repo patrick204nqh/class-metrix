@@ -235,40 +235,40 @@
           }
         }
       ]
-    },
-    {
-      "label": "Format: All JSON Files",
-      "type": "shell",
-      "command": "npx",
-      "args": ["prettier", "--write", "**/*.json", "**/*.jsonc"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "silent",
-        "focus": false,
-        "panel": "shared"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Format: All YAML Files",
-      "type": "shell",
-      "command": "npx",
-      "args": ["prettier", "--write", "**/*.yaml", "**/*.yml"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "silent",
-        "focus": false,
-        "panel": "shared"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": []
     }
+    // {
+    //   "label": "Format: All JSON Files",
+    //   "type": "shell",
+    //   "command": "npx",
+    //   "args": ["prettier", "--write", "**/*.json", "**/*.jsonc"],
+    //   "group": "build",
+    //   "presentation": {
+    //     "echo": true,
+    //     "reveal": "silent",
+    //     "focus": false,
+    //     "panel": "shared"
+    //   },
+    //   "options": {
+    //     "cwd": "${workspaceFolder}"
+    //   },
+    //   "problemMatcher": []
+    // },
+    // {
+    //   "label": "Format: All YAML Files",
+    //   "type": "shell",
+    //   "command": "npx",
+    //   "args": ["prettier", "--write", "**/*.yaml", "**/*.yml"],
+    //   "group": "build",
+    //   "presentation": {
+    //     "echo": true,
+    //     "reveal": "silent",
+    //     "focus": false,
+    //     "panel": "shared"
+    //   },
+    //   "options": {
+    //     "cwd": "${workspaceFolder}"
+    //   },
+    //   "problemMatcher": []
+    // }
   ]
 }

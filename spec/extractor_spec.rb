@@ -18,6 +18,12 @@ module TestModule
     def overridable_method
       "module_default"
     end
+
+    private
+
+    def private_module_method
+      "private_from_module"
+    end
   end
 end
 
@@ -31,6 +37,12 @@ module AnotherTestModule
   module ClassMethods
     def another_module_method
       "another_module"
+    end
+
+    private
+
+    def another_private_method
+      "another_private"
     end
   end
 end
@@ -46,6 +58,11 @@ class TestParent
   def self.overridable_method
     "parent_default"
   end
+
+  def self.private_parent_method
+    "private_from_parent"
+  end
+  private_class_method :private_parent_method
 end
 
 class TestChild < TestParent
@@ -61,6 +78,11 @@ class TestChild < TestParent
   def self.overridable_method
     "child_override" # Override both parent and module
   end
+
+  def self.private_child_method
+    "private_from_child"
+  end
+  private_class_method :private_child_method
 end
 
 class TestGrandchild < TestChild
@@ -106,6 +128,31 @@ class TestAdmin
   def self.admin_config
     { admin_level: "super", permissions: %w[read write delete] }
   end
+end
+
+# Test class for private features
+class TestPrivateFeatures
+  # Public constants and methods
+  PUBLIC_CONSTANT = "public_value"
+
+  def self.public_method
+    "public_result"
+  end
+
+  # Private constants and methods
+  PRIVATE_CONSTANT = "private_value"
+  SECRET_KEY = "secret123"
+  private_constant :PRIVATE_CONSTANT, :SECRET_KEY
+
+  def self.private_method
+    "private_result"
+  end
+
+  def self.secret_method
+    "secret_result"
+  end
+
+  private_class_method :private_method, :secret_method
 end
 
 RSpec.describe ClassMetrix::Extractor do
@@ -167,26 +214,28 @@ RSpec.describe ClassMetrix::Extractor do
     end
   end
 
-  describe "inheritance and module options" do
-    describe "#include_inherited" do
-      it "sets the include_inherited flag" do
-        extractor = ClassMetrix.extract(:constants).from([TestChild]).include_inherited
-        expect(extractor.instance_variable_get(:@include_inherited)).to be true
+  describe "clean modern API" do
+    describe "#strict" do
+      it "disables inheritance and modules (class-only scanning)" do
+        extractor = ClassMetrix.extract(:constants).from([TestChild]).strict
+        expect(extractor.instance_variable_get(:@include_inherited)).to be false
+        expect(extractor.instance_variable_get(:@include_modules)).to be false
       end
     end
 
-    describe "#include_modules" do
-      it "sets the include_modules flag" do
-        extractor = ClassMetrix.extract(:constants).from([TestChild]).include_modules
-        expect(extractor.instance_variable_get(:@include_modules)).to be true
+    describe "#with_private" do
+      it "enables private methods/constants scanning" do
+        extractor = ClassMetrix.extract(:constants).from([TestPrivateFeatures]).with_private
+        expect(extractor.instance_variable_get(:@include_private)).to be true
       end
     end
 
-    describe "#include_all" do
-      it "sets both include_inherited and include_modules flags" do
-        extractor = ClassMetrix.extract(:constants).from([TestChild]).include_all
+    describe "default behavior" do
+      it "has inheritance and modules enabled by default" do
+        extractor = ClassMetrix.extract(:constants).from([TestChild])
         expect(extractor.instance_variable_get(:@include_inherited)).to be true
         expect(extractor.instance_variable_get(:@include_modules)).to be true
+        expect(extractor.instance_variable_get(:@include_private)).to be false
       end
     end
 
@@ -249,11 +298,10 @@ RSpec.describe ClassMetrix::Extractor do
         expect(result).to include("60")           # Value
       end
 
-      context "with inheritance" do
-        it "includes inherited constants when include_inherited is enabled" do
+      context "with inheritance (default behavior)" do
+        it "includes inherited constants by default" do
           result = ClassMetrix.extract(:constants)
                               .from([TestChild])
-                              .include_inherited
                               .to_markdown
 
           expect(result).to include("CHILD_CONSTANT")   # Own constant
@@ -265,7 +313,6 @@ RSpec.describe ClassMetrix::Extractor do
         it "shows constant overrides correctly" do
           result = ClassMetrix.extract(:constants)
                               .from([TestChild])
-                              .include_inherited
                               .filter(/SHARED_CONSTANT/)
                               .to_markdown
 
@@ -276,7 +323,6 @@ RSpec.describe ClassMetrix::Extractor do
         it "works with grandchild inheritance" do
           result = ClassMetrix.extract(:constants)
                               .from([TestGrandchild])
-                              .include_inherited
                               .to_markdown
 
           expect(result).to include("GRANDCHILD_CONSTANT")  # Own
@@ -285,11 +331,10 @@ RSpec.describe ClassMetrix::Extractor do
         end
       end
 
-      context "with modules" do
-        it "includes module constants when include_modules is enabled" do
+      context "with modules (default behavior)" do
+        it "includes module constants by default" do
           result = ClassMetrix.extract(:constants)
                               .from([TestChild])
-                              .include_modules
                               .to_markdown
 
           expect(result).to include("CHILD_CONSTANT")        # Own constant
@@ -298,10 +343,9 @@ RSpec.describe ClassMetrix::Extractor do
           expect(result).to include("module_value")
         end
 
-        it "includes modules from inheritance chain" do
+        it "includes modules from inheritance chain by default" do
           result = ClassMetrix.extract(:constants)
                               .from([TestGrandchild])
-                              .include_all # Both inherited and modules
                               .to_markdown
 
           expect(result).to include("GRANDCHILD_CONSTANT")   # Own
@@ -310,16 +354,41 @@ RSpec.describe ClassMetrix::Extractor do
         end
       end
 
-      context "with include_all" do
-        it "includes everything: own, inherited, and modules" do
+      context "comprehensive scanning (default behavior)" do
+        it "includes everything by default: own, inherited, and modules" do
           result = ClassMetrix.extract(:constants)
                               .from([TestChild])
-                              .include_all
                               .to_markdown
 
           expect(result).to include("CHILD_CONSTANT")        # Own
           expect(result).to include("PARENT_CONSTANT")       # Inherited
           expect(result).to include("TEST_MODULE_CONSTANT")  # Module
+        end
+      end
+
+      context "with private features" do
+        it "excludes private constants by default" do
+          result = ClassMetrix.extract(:constants)
+                              .from([TestPrivateFeatures])
+                              .to_markdown
+
+          expect(result).to include("PUBLIC_CONSTANT")
+          expect(result).not_to include("PRIVATE_CONSTANT")
+          expect(result).not_to include("SECRET_KEY")
+        end
+
+        it "includes private constants when with_private is enabled" do
+          result = ClassMetrix.extract(:constants)
+                              .from([TestPrivateFeatures])
+                              .with_private
+                              .to_markdown
+
+          expect(result).to include("PUBLIC_CONSTANT")
+          expect(result).to include("PRIVATE_CONSTANT")
+          expect(result).to include("SECRET_KEY")
+          expect(result).to include("public_value")
+          expect(result).to include("private_value")
+          expect(result).to include("secret123")
         end
       end
     end
@@ -378,11 +447,10 @@ RSpec.describe ClassMetrix::Extractor do
         expect(result).to include("standard")
       end
 
-      context "with inheritance" do
-        it "includes inherited methods when include_inherited is enabled" do
+      context "with inheritance (default behavior)" do
+        it "includes inherited methods by default" do
           result = ClassMetrix.extract(:class_methods)
                               .from([TestChild])
-                              .include_inherited
                               .to_markdown
 
           expect(result).to include("child_method")    # Own method
@@ -394,7 +462,6 @@ RSpec.describe ClassMetrix::Extractor do
         it "shows method overrides correctly" do
           result = ClassMetrix.extract(:class_methods)
                               .from([TestChild])
-                              .include_inherited
                               .filter(/overridable_method/)
                               .to_markdown
 
@@ -403,11 +470,10 @@ RSpec.describe ClassMetrix::Extractor do
         end
       end
 
-      context "with modules" do
-        it "includes module methods when include_modules is enabled" do
+      context "with modules (default behavior)" do
+        it "includes module methods by default" do
           result = ClassMetrix.extract(:class_methods)
                               .from([TestChild])
-                              .include_modules
                               .to_markdown
 
           expect(result).to include("child_method")    # Own method
@@ -419,7 +485,6 @@ RSpec.describe ClassMetrix::Extractor do
         it "handles method overrides from modules" do
           result = ClassMetrix.extract(:class_methods)
                               .from([TestChild])
-                              .include_modules
                               .filter(/overridable_method/)
                               .to_markdown
 
@@ -428,11 +493,10 @@ RSpec.describe ClassMetrix::Extractor do
         end
       end
 
-      context "with include_all" do
-        it "includes everything: own, inherited, and module methods" do
+      context "comprehensive scanning (default behavior)" do
+        it "includes everything by default: own, inherited, and module methods" do
           result = ClassMetrix.extract(:class_methods)
                               .from([TestChild])
-                              .include_all
                               .to_markdown
 
           expect(result).to include("child_method")    # Own
@@ -443,7 +507,6 @@ RSpec.describe ClassMetrix::Extractor do
         it "shows complex inheritance with modules correctly" do
           result = ClassMetrix.extract(:class_methods)
                               .from([TestGrandchild])
-                              .include_all
                               .to_markdown
 
           expect(result).to include("grandchild_method")     # Own
@@ -451,6 +514,76 @@ RSpec.describe ClassMetrix::Extractor do
           expect(result).to include("child_method")          # Parent
           expect(result).to include("module_method")         # Parent's module
           expect(result).to include("parent_method")         # Grandparent
+        end
+      end
+
+      context "with private features" do
+        it "excludes private methods by default" do
+          result = ClassMetrix.extract(:class_methods)
+                              .from([TestPrivateFeatures])
+                              .to_markdown
+
+          expect(result).to include("public_method")
+          expect(result).not_to include("private_method")
+          expect(result).not_to include("secret_method")
+        end
+
+        it "includes private methods when with_private is enabled" do
+          result = ClassMetrix.extract(:class_methods)
+                              .from([TestPrivateFeatures])
+                              .with_private
+                              .handle_errors
+                              .to_markdown
+
+          expect(result).to include("public_method")
+          expect(result).to include("private_method")
+          expect(result).to include("secret_method")
+          expect(result).to include("public_result")
+          expect(result).to include("private_result")
+          expect(result).to include("secret_result")
+        end
+
+        it "includes private methods from inheritance when with_private is enabled (default includes inheritance)" do
+          result = ClassMetrix.extract(:class_methods)
+                              .from([TestChild])
+                              .with_private
+                              .to_markdown(max_column_width: 50)
+
+          # Should include both public and private methods from child and parent (inheritance is default)
+          expect(result).to include("child_method")          # Own public
+          expect(result).to include("parent_method")         # Inherited public
+          expect(result).to include("overridable_method")    # Overridden method
+          expect(result).to include("private_child_method")  # Own private
+          expect(result).to include("private_parent_method") # Inherited private
+        end
+
+        it "includes private methods from modules when with_private is enabled (default includes modules)" do
+          result = ClassMetrix.extract(:class_methods)
+                              .from([TestChild])
+                              .with_private
+                              .to_markdown(max_column_width: 50)
+
+          # Should include both public and private methods from own class and modules (modules are default)
+          expect(result).to include("child_method")           # Own public
+          expect(result).to include("module_method")          # Module public
+          expect(result).to include("private_child_method")   # Own private
+          expect(result).to include("private_module_method")  # Module private
+        end
+
+        it "includes private methods comprehensively when with_private is enabled (default behavior includes inheritance and modules)" do
+          result = ClassMetrix.extract(:class_methods)
+                              .from([TestChild])
+                              .with_private
+                              .to_markdown(max_column_width: 50)
+
+          # Should include everything: own, inherited, module methods (both public and private) - comprehensive by default
+          expect(result).to include("child_method")           # Own public
+          expect(result).to include("parent_method")          # Inherited public
+          expect(result).to include("module_method")          # Module public
+          expect(result).to include("overridable_method")     # Overridden method
+          expect(result).to include("private_child_method")   # Own private
+          expect(result).to include("private_parent_method")  # Inherited private
+          expect(result).to include("private_module_method")  # Module private
         end
       end
     end
@@ -486,12 +619,11 @@ RSpec.describe ClassMetrix::Extractor do
         expect(result).to include("config.permissions") # Hash expansion from config method
       end
 
-      context "with inheritance and modules" do
-        it "combines all extraction types with inheritance" do
+      context "with inheritance and modules (default behavior)" do
+        it "combines all extraction types with comprehensive scanning by default" do
           result = ClassMetrix.extract(:constants, :class_methods)
                               .from([TestChild])
-                              .include_all
-                              .to_markdown
+                              .to_markdown(max_column_width: 50)
 
           expect(result).to include("Constant")
           expect(result).to include("Class Method")

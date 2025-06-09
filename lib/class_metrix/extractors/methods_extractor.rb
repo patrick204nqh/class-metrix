@@ -41,6 +41,7 @@ module ClassMetrix
         {
           include_inherited: false,
           include_modules: false,
+          include_private: false,
           show_source: false
         }
       end

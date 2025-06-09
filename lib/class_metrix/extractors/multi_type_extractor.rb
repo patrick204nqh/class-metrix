@@ -10,7 +10,6 @@ module ClassMetrix
         @classes = classes
         @types = types
         @filters = filters
-        @modules = extraction_config[:modules] || []
         @handle_errors = extraction_config[:handle_errors] || false
         @options = extraction_config[:options] || {}
       end

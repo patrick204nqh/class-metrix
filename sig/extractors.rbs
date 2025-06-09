@@ -172,7 +172,6 @@ module ClassMetrix
     @classes: Array[Class]
     @types: Array[Symbol]
     @filters: Array[Regexp | String]
-    @modules: Array[Module]
     @handle_errors: bool
     @options: Hash[Symbol, untyped]
 

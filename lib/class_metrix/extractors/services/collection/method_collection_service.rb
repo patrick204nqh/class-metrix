@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "private_inheritance_collector"
+require_relative "private_module_collector"
+
 module ClassMetrix
   module Extractors
     module Services
@@ -24,7 +27,7 @@ module ClassMetrix
           private
 
           def collect_from_single_class(klass)
-            return klass.singleton_methods(false) unless inheritance_or_modules_enabled?
+            return klass.singleton_methods(false) unless inheritance_or_modules_or_private_enabled?
 
             collect_comprehensive_methods(klass)
           end
@@ -33,11 +36,12 @@ module ClassMetrix
             methods = Set.new(klass.singleton_methods(false))
             methods.merge(InheritanceCollector.new.collect(klass)) if include_inherited?
             methods.merge(ModuleCollector.new.collect(klass)) if include_modules?
+            methods.merge(collect_private_methods(klass)) if include_private?
             methods.to_a
           end
 
-          def inheritance_or_modules_enabled?
-            include_inherited? || include_modules?
+          def inheritance_or_modules_or_private_enabled?
+            include_inherited? || include_modules? || include_private?
           end
 
           def include_inherited?
@@ -46,6 +50,25 @@ module ClassMetrix
 
           def include_modules?
             @options[:include_modules]
+          end
+
+          def include_private?
+            @options[:include_private]
+          end
+
+          def collect_private_methods(klass)
+            methods = Set.new
+
+            # Get private singleton methods from the class itself
+            methods.merge(klass.singleton_class.private_instance_methods(false))
+
+            # Get private methods from inheritance chain if include_inherited is enabled
+            methods.merge(PrivateInheritanceCollector.new.collect(klass)) if include_inherited?
+
+            # Get private methods from included modules if include_modules is enabled
+            methods.merge(PrivateModuleCollector.new.collect(klass)) if include_modules?
+
+            methods
           end
         end
       end
