@@ -1,0 +1,20 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      module Collection
+        class ModuleCollector
+          EXCLUDED_METHODS: Array[String]
+
+          def collect: (Class klass) -> Set[Symbol]
+
+          private
+
+          def collect_from_modules: (Class klass) -> Array[String]
+          def get_relevant_modules: (Class klass) -> Array[Module]
+          def extract_valid_methods: (Module mod) -> Array[String]
+          def core_module?: (Module mod) -> bool
+        end
+      end
+    end
+  end
+end

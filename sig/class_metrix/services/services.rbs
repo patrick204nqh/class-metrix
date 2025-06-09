@@ -1,0 +1,29 @@
+module ClassMetrix
+  module Services
+    class ScopeResolver
+      @config: untyped
+
+      def initialize: (untyped config) -> void
+
+      def resolve_method_scope: (Class klass) -> Array[Symbol]
+
+      def resolve_constant_scope: (Class klass) -> Hash[String, untyped]
+
+      private
+
+      def collect_own_methods: (Class klass) -> Array[Symbol]
+      def collect_inherited_methods: (Class klass) -> Set[Symbol]
+      def collect_module_methods: (Class klass) -> Set[Symbol]
+      def collect_private_methods: (Class klass) -> Set[Symbol]
+      def collect_private_inherited_methods: (Class klass) -> Set[Symbol]
+      def collect_private_module_methods: (Class klass) -> Set[Symbol]
+
+      def collect_own_constants: (Class klass) -> Hash[String, untyped]
+      def collect_inherited_constants: (Class klass) -> Hash[String, untyped]
+      def collect_module_constants: (Class klass) -> Hash[String, untyped]
+      def collect_private_constants: (Class klass) -> Hash[String, untyped]
+
+      def generate_candidate_constant_names: -> Array[String]
+    end
+  end
+end

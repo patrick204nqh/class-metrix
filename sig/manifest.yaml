@@ -14,13 +14,26 @@ dependencies:
 type_definitions:
   - class_metrix.rbs # Main module and entry point
   - version.rbs # Version constant
-  - extractor.rbs # Core extractor fluent interface
-  - extractors.rbs # Specialized extractor classes
-  - formatters_base.rbs # Base formatter and component classes
-  - formatters_components.rbs # Component classes for formatters
-  - formatters_shared.rbs # Shared table builder classes
-  - formatters_main.rbs # Main formatter classes
-  - utils.rbs # Utility classes and processors
+  - class_metrix/extractor.rbs # Core extractor fluent interface
+  - class_metrix/extractors/extractors.rbs # Specialized extractor classes
+  - class_metrix/config/config.rbs # Configuration classes
+  - class_metrix/services/services.rbs # Services module and scope resolver
+  - class_metrix/extractors/services/collection/method_collection_service.rbs
+  - class_metrix/extractors/services/collection/inheritance_collector.rbs
+  - class_metrix/extractors/services/collection/module_collector.rbs
+  - class_metrix/extractors/services/collection/private_inheritance_collector.rbs
+  - class_metrix/extractors/services/collection/private_module_collector.rbs
+  - class_metrix/extractors/services/filtering/method_filter_service.rbs
+  - class_metrix/extractors/services/resolution/method_resolver.rbs
+  - class_metrix/extractors/services/resolution/inherited_method_resolver.rbs
+  - class_metrix/extractors/services/resolution/module_method_resolver.rbs
+  - class_metrix/extractors/services/method_call_service.rbs
+  - class_metrix/formatters/formatters_main.rbs # Main formatter classes
+  - class_metrix/formatters/base/formatters_base.rbs # Base formatter classes
+  - class_metrix/formatters/components/formatters_components.rbs # Component classes
+  - class_metrix/formatters/shared/formatters_shared.rbs # Shared table builder classes
+  - class_metrix/utils/utils.rbs # Utility classes
+  - class_metrix/processors/value_processor.rbs # Value processors
 
 coverage_targets:
   - lib/class_metrix.rb

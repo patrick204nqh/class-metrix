@@ -1,0 +1,18 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      module Resolution
+        class InheritedMethodResolver
+          def resolve: (Class klass, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+
+          private
+
+          def traverse_parent_chain: (Class klass) { (Class) -> void } -> void
+          def create_callable: (Class parent_class, String method_name) -> Proc
+          def create_method_info: (String source, Symbol type, Proc callable) -> Hash[Symbol, untyped]
+          def core_class?: (Class klass) -> bool
+        end
+      end
+    end
+  end
+end

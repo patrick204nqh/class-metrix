@@ -6,9 +6,9 @@ module ClassMetrix
     @filters: Array[Regexp | String]
     @expand_hashes: bool
     @handle_errors: bool
-    @modules: Array[Module]
     @include_inherited: bool
     @include_modules: bool
+    @include_private: bool
     @show_source: bool
     @hide_main_row: bool
     @hide_key_rows: bool
@@ -19,18 +19,16 @@ module ClassMetrix
     def initialize: (*Symbol types) -> void
 
     # Core configuration methods
-    def from: (Array[Class] classes) -> self
+    def from: (Array[Class | String] classes) -> self
     def filter: (Regexp | String pattern) -> self
     def expand_hashes: () -> self
     def debug: (?Symbol level) -> self
     def handle_errors: () -> self
-    def modules: (Array[Module] module_list) -> self
 
-    # Inheritance and module inclusion options
-    def include_inherited: () -> self
-    def include_modules: () -> self
+    # Clean modern API methods
+    def strict: () -> self
+    def with_private: () -> self
     def show_source: () -> self
-    def include_all: () -> self
 
     # Hash expansion display options
     def show_only_main: () -> self
@@ -40,15 +38,15 @@ module ClassMetrix
     def hide_key_rows: () -> self
 
     # Output methods
-    def to_markdown: (?String filename) -> String
-    def to_csv: (?String filename) -> String
+    def to_markdown: (?String filename, **untyped options) -> String
+    def to_csv: (?String filename, **untyped options) -> String
 
     private
 
     def extract_all_data: () -> Hash[Symbol, untyped]
     def extract_single_type: (Symbol type) -> Hash[Symbol, untyped]
     def extract_multiple_types: () -> Hash[Symbol, untyped]
-    def get_extractor: (Symbol type) -> (ClassMetrix::ConstantsExtractor | ClassMetrix::MethodsExtractor)
+    def get_extractor: (Symbol type) -> (ClassMetrix::Extractors::ConstantsExtractor | ClassMetrix::Extractors::MethodsExtractor)
     def extraction_options: () -> Hash[Symbol, untyped]
   end
 end

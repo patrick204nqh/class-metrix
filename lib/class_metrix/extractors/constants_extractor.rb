@@ -32,6 +32,7 @@ module ClassMetrix
         {
           include_inherited: false,
           include_modules: false,
+          include_private: false,
           show_source: false
         }
       end
@@ -59,7 +60,7 @@ module ClassMetrix
         all_constants = Set.new
 
         @classes.each do |klass|
-          constants = if inheritance_or_modules_enabled?
+          constants = if inheritance_or_modules_enabled? || @options[:include_private]
                         get_comprehensive_constants(klass)
                       else
                         klass.constants(false)
@@ -81,6 +82,8 @@ module ClassMetrix
         constants.merge(get_inherited_constants(klass)) if @options[:include_inherited]
 
         constants.merge(get_module_constants(klass)) if @options[:include_modules]
+
+        constants.merge(get_private_constants(klass)) if @options[:include_private]
 
         constants.to_a
       end
@@ -108,6 +111,61 @@ module ClassMetrix
         constants
       end
 
+      def get_private_constants(klass)
+        constants = Set.new
+
+        # Strategy: Try to find private constants by testing common naming patterns
+        # and checking if they're defined but not in the public constants list
+        public_constants = klass.constants(false)
+
+        # Try common constant naming patterns
+        candidate_names = generate_candidate_constant_names(klass)
+
+        candidate_names.each do |name|
+          next if public_constants.include?(name)
+
+          if klass.const_defined?(name, false)
+            constants.add(name)
+            debug_log("Found private constant: #{name}")
+          end
+        end
+
+        constants
+      end
+
+      def generate_candidate_constant_names(klass)
+        candidates = Set.new
+
+        # Add alphabet-based constants (A-Z, AA-ZZ, etc.)
+        ("A".."Z").each { |letter| candidates.add(letter.to_sym) }
+
+        # Add common constant patterns
+        %w[
+          VERSION AUTHOR AUTHORS
+          CONFIG CONFIGURATION SETTINGS OPTIONS
+          DEFAULT DEFAULTS DEFAULT_OPTIONS
+          API_KEY SECRET TOKEN SECRET_KEY
+          HOST PORT URL URI
+          DEBUG VERBOSE QUIET
+          TIMEOUT RETRIES MAX_RETRIES
+          CACHE BUFFER SIZE LIMIT
+          ENABLED DISABLED
+          PUBLIC PRIVATE PROTECTED PRIVATE_CONSTANT
+          TEST TESTING DEVELOPMENT PRODUCTION
+          TRUE FALSE
+        ].each { |name| candidates.add(name.to_sym) }
+
+        # Add class name variations
+        class_name = klass.name.split("::").last
+        if class_name
+          candidates.add(:"#{class_name.upcase}_CONFIG")
+          candidates.add(:"#{class_name.upcase}_OPTIONS")
+          candidates.add(:"#{class_name.upcase}_SETTINGS")
+        end
+
+        candidates.to_a
+      end
+
       def get_all_included_modules(klass)
         modules = [] # : Array[Module]
         modules.concat(klass.included_modules)
@@ -124,7 +182,9 @@ module ClassMetrix
       end
 
       def core_class?(klass)
-        [Object, BasicObject].include?(klass)
+        # @type var core_classes: Array[Class]
+        core_classes = [Object, BasicObject]
+        core_classes.include?(klass)
       end
 
       def apply_filters(constant_names)

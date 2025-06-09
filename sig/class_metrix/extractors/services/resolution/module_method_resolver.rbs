@@ -1,0 +1,23 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      module Resolution
+        class ModuleMethodResolver
+          @options: Hash[Symbol, untyped]
+
+          def initialize: (?Hash[Symbol, untyped] options) -> void
+          def resolve: (Class klass, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+
+          private
+
+          def process_module: (Class klass, Module mod, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+          def get_singleton_modules: (Class klass) -> Array[Module]
+          def create_callable: (Class klass, String method_name) -> Proc
+          def determine_source: (Class klass, Module mod) -> String
+          def create_method_info: (String source, Symbol type, Proc callable) -> Hash[Symbol, untyped]
+          def core_module?: (Module mod) -> bool
+        end
+      end
+    end
+  end
+end

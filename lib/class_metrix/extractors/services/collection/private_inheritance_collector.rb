@@ -4,11 +4,11 @@ module ClassMetrix
   module Extractors
     module Services
       module Collection
-        # Handles inheritance-based method collection
-        class InheritanceCollector
+        # Handles inheritance-based private method collection
+        class PrivateInheritanceCollector
           def collect(klass)
             methods = Set.new
-            traverse_parent_chain(klass) { |parent| methods.merge(parent.singleton_methods(false)) }
+            traverse_parent_chain(klass) { |parent| methods.merge(parent.singleton_class.private_instance_methods(false)) }
             methods
           end
 

@@ -39,7 +39,9 @@ module ClassMetrix
           end
 
           def core_class?(klass)
-            [Object, BasicObject].include?(klass)
+            # @type var core_classes: Array[Class]
+            core_classes = [Object, BasicObject]
+            core_classes.include?(klass)
           end
         end
       end

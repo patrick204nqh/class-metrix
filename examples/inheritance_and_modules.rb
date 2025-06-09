@@ -83,52 +83,42 @@ end
 # Demo the functionality
 services = [DatabaseService, CacheService]
 
-puts "\n1. Basic Analysis (Own Constants Only)"
+puts "\n1. Class-Only Analysis (Using .strict())"
+puts "-" * 40
+result = ClassMetrix.extract(:constants)
+                    .from(services)
+                    .strict
+                    .to_markdown
+puts result
+
+puts "\n2. Default Comprehensive Analysis (Inheritance + Modules Enabled)"
 puts "-" * 40
 result = ClassMetrix.extract(:constants)
                     .from(services)
                     .to_markdown
 puts result
 
-puts "\n2. With Inheritance (Own + Parent Constants)"
-puts "-" * 40
-result = ClassMetrix.extract(:constants)
-                    .from(services)
-                    .include_inherited
-                    .to_markdown
-puts result
-
-puts "\n3. With Modules (Own + Module Constants)"
-puts "-" * 40
-result = ClassMetrix.extract(:constants)
-                    .from(services)
-                    .include_modules
-                    .to_markdown
-puts result
-
-puts "\n4. Complete Analysis (Own + Inherited + Modules)"
+puts "\n3. Complete Analysis with Methods (Comprehensive by Default)"
 puts "-" * 40
 result = ClassMetrix.extract(:constants, :class_methods)
                     .from(services)
-                    .include_all
                     .handle_errors
                     .to_markdown
 puts result
 
-puts "\n5. Filtered Configuration Analysis"
+puts "\n4. Filtered Configuration Analysis"
 puts "-" * 40
 result = ClassMetrix.extract(:constants, :class_methods)
                     .from(services)
-                    .include_all
                     .filter(/config|timeout|service/i)
                     .expand_hashes
                     .to_markdown
 puts result
 
-puts "\n6. Hash Expansion Modes"
+puts "\n5. Hash Expansion Modes"
 puts "-" * 40
 
-puts "\n6a. Default: Show Only Main Rows (Collapsed Hashes)"
+puts "\n5a. Default: Show Only Main Rows (Collapsed Hashes)"
 result = ClassMetrix.extract(:class_methods)
                     .from([CacheService])
                     .filter(/config/)
@@ -136,7 +126,7 @@ result = ClassMetrix.extract(:class_methods)
                     .to_markdown
 puts result
 
-puts "\n6b. Show Only Key Rows (Expanded Details)"
+puts "\n5b. Show Only Key Rows (Expanded Details)"
 result = ClassMetrix.extract(:class_methods)
                     .from([CacheService])
                     .filter(/config/)
@@ -145,7 +135,7 @@ result = ClassMetrix.extract(:class_methods)
                     .to_markdown
 puts result
 
-puts "\n6c. Show Both Main and Key Rows"
+puts "\n5c. Show Both Main and Key Rows"
 result = ClassMetrix.extract(:class_methods)
                     .from([CacheService])
                     .filter(/config/)
@@ -153,3 +143,10 @@ result = ClassMetrix.extract(:class_methods)
                     .show_expanded_details
                     .to_markdown
 puts result
+
+puts "\n" + "=" * 50
+puts "✨ CLEAN API HIGHLIGHTS:"
+puts "• Inheritance & modules enabled BY DEFAULT (comprehensive)"
+puts "• Use .strict() when you want class-only analysis"
+puts "• Much more intuitive and less verbose than before!"
+puts "=" * 50

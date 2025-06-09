@@ -16,9 +16,10 @@ module ClassMetrix
       @filters = []
       @expand_hashes = false
       @handle_errors = false
-      @modules = []
-      @include_inherited = false
-      @include_modules = false
+      # New default: comprehensive scanning (inheritance + modules enabled by default)
+      @include_inherited = true
+      @include_modules = true
+      @include_private = false # Private still requires explicit opt-in
       @show_source = false
       @hide_main_row = false
       @hide_key_rows = true # Default: show only main rows
@@ -57,30 +58,22 @@ module ClassMetrix
       self
     end
 
-    def modules(module_list)
-      @modules = module_list
+    # Clean modern API methods
+    def strict
+      @include_inherited = false
+      @include_modules = false
+      @logger&.log("Strict mode enabled - scanning class only")
       self
     end
 
-    # Inheritance and module inclusion options
-    def include_inherited
-      @include_inherited = true
-      self
-    end
-
-    def include_modules
-      @include_modules = true
+    def with_private
+      @include_private = true
+      @logger&.log("Private scanning enabled")
       self
     end
 
     def show_source
       @show_source = true
-      self
-    end
-
-    def include_all
-      @include_inherited = true
-      @include_modules = true
       self
     end
 
@@ -185,7 +178,6 @@ module ClassMetrix
     def extract_multiple_types
       @logger&.log("Extracting multiple types: #{@types}")
       extraction_config = {
-        modules: @modules,
         handle_errors: @handle_errors,
         options: extraction_options
       }
@@ -207,6 +199,7 @@ module ClassMetrix
       {
         include_inherited: @include_inherited,
         include_modules: @include_modules,
+        include_private: @include_private,
         show_source: @show_source,
         debug_mode: @debug_mode,
         debug_level: @debug_level

@@ -1,0 +1,19 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      module Filtering
+        class MethodFilterService
+          @filters: Array[Regexp | String]
+
+          def initialize: (Array[Regexp | String]? filters) -> void
+          def apply: (Array[String] method_names) -> Array[String]
+
+          private
+
+          def apply_single_filter: (Array[String] method_names, Regexp | String filter) -> Array[String]
+          def matches_filter?: (String name, Regexp | String filter) -> bool
+        end
+      end
+    end
+  end
+end
