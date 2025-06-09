@@ -1,0 +1,19 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      class MethodCallService
+        @handle_errors: bool
+        @options: Hash[Symbol, untyped]
+
+        def initialize: (bool handle_errors, ?Hash[Symbol, untyped] options) -> void
+        def call_method: (Class klass, String method_name) -> untyped
+
+        private
+
+        def execute_method: (Hash[Symbol, untyped] method_info, Class klass, String method_name) -> untyped
+        def handle_missing_method: -> untyped
+        def handle_error: (StandardError error) -> untyped
+      end
+    end
+  end
+end

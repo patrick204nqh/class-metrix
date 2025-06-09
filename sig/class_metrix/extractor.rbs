@@ -19,7 +19,7 @@ module ClassMetrix
     def initialize: (*Symbol types) -> void
 
     # Core configuration methods
-    def from: (Array[Class] classes) -> self
+    def from: (Array[Class | String] classes) -> self
     def filter: (Regexp | String pattern) -> self
     def expand_hashes: () -> self
     def debug: (?Symbol level) -> self
@@ -46,7 +46,7 @@ module ClassMetrix
     def extract_all_data: () -> Hash[Symbol, untyped]
     def extract_single_type: (Symbol type) -> Hash[Symbol, untyped]
     def extract_multiple_types: () -> Hash[Symbol, untyped]
-    def get_extractor: (Symbol type) -> (ClassMetrix::ConstantsExtractor | ClassMetrix::MethodsExtractor)
+    def get_extractor: (Symbol type) -> (ClassMetrix::Extractors::ConstantsExtractor | ClassMetrix::Extractors::MethodsExtractor)
     def extraction_options: () -> Hash[Symbol, untyped]
   end
 end

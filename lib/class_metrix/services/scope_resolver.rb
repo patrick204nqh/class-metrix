@@ -24,7 +24,7 @@ module ClassMetrix
       end
 
       def resolve_constant_scope(klass)
-        constants = {}
+        constants = {} # : Hash[String, untyped]
 
         # Always include the class's own constants
         constants.merge!(collect_own_constants(klass))
@@ -57,7 +57,9 @@ module ClassMetrix
         # Collect from included modules
         methods = Set.new
         klass.singleton_class.included_modules.each do |mod|
-          next if [Kernel].include?(mod)
+          # @type var core_modules: Array[Module]
+          core_modules = [Kernel]
+          next if core_modules.include?(mod)
 
           methods.merge(mod.singleton_methods(false)) if mod.respond_to?(:singleton_methods)
         end
@@ -92,7 +94,9 @@ module ClassMetrix
       def collect_private_module_methods(klass)
         methods = Set.new
         klass.singleton_class.included_modules.each do |mod|
-          next if [Kernel].include?(mod)
+          # @type var core_modules: Array[Module]
+          core_modules = [Kernel]
+          next if core_modules.include?(mod)
 
           methods.merge(mod.private_instance_methods(false)) if mod.respond_to?(:private_instance_methods)
         end
@@ -100,7 +104,7 @@ module ClassMetrix
       end
 
       def collect_own_constants(klass)
-        constants = {}
+        constants = {} # : Hash[String, untyped]
         klass.constants(false).each do |const_name|
           constants[const_name.to_s] = klass.const_get(const_name)
         end
@@ -108,7 +112,7 @@ module ClassMetrix
       end
 
       def collect_inherited_constants(klass)
-        constants = {}
+        constants = {} # : Hash[String, untyped]
         current = klass.superclass
 
         while current && current != Object
@@ -124,9 +128,11 @@ module ClassMetrix
       end
 
       def collect_module_constants(klass)
-        constants = {}
+        constants = {} # : Hash[String, untyped]
         klass.included_modules.each do |mod|
-          next if [Kernel].include?(mod)
+          # @type var core_modules: Array[Module]
+          core_modules = [Kernel]
+          next if core_modules.include?(mod)
 
           mod.constants(false).each do |const_name|
             next if constants.key?(const_name.to_s) # Don't override
@@ -140,7 +146,7 @@ module ClassMetrix
       def collect_private_constants(klass)
         # This is tricky - Ruby doesn't have a direct way to get private constants
         # We can try some heuristics or use reflection techniques
-        constants = {}
+        constants = {} # : Hash[String, untyped]
 
         # Try common private constant patterns
         candidate_names = generate_candidate_constant_names

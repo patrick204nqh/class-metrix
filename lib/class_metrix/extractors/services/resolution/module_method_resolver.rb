@@ -54,7 +54,9 @@ module ClassMetrix
           end
 
           def core_module?(mod)
-            [Kernel, Module, Class].include?(mod)
+            # @type var core_modules: Array[Module]
+            core_modules = [Kernel, Module, Class]
+            core_modules.include?(mod)
           end
         end
       end

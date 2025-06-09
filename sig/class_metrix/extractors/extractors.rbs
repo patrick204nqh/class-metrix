@@ -1,0 +1,76 @@
+# Specialized extractor classes
+module ClassMetrix
+  module Extractors
+    class ConstantsExtractor
+    @classes: Array[Class]
+    @filters: Array[Regexp | String]
+    @handle_errors: bool
+    @options: Hash[Symbol, untyped]
+    @debug_level: Symbol
+    @logger: ClassMetrix::Utils::DebugLogger
+
+    def initialize: (Array[Class] classes, Array[Regexp | String] filters, bool handle_errors, ?Hash[Symbol, untyped] options) -> void
+    def extract: () -> Hash[Symbol, untyped]
+
+    private
+
+    def default_options: () -> Hash[Symbol, untyped]
+    def build_headers: () -> Array[String]
+    def build_rows: (Array[String] constant_names) -> Array[Array[untyped]]
+    def get_all_constant_names: () -> Array[String]
+    def inheritance_or_modules_enabled?: () -> bool
+    def get_comprehensive_constants: (Class klass) -> Array[Symbol]
+    def get_inherited_constants: (Class klass) -> Set[Symbol]
+    def get_module_constants: (Class klass) -> Set[Symbol]
+    def get_all_included_modules: (Class klass) -> Array[Module]
+    def core_class?: (untyped klass) -> bool
+    def apply_filters: (Array[String] constant_names) -> Array[String]
+    def extract_constant_value: (Class klass, String const_name) -> untyped
+    def find_constant_source: (Class klass, String const_name) -> Hash[Symbol, untyped]?
+    def find_inherited_constant: (Class klass, String const_name) -> Hash[Symbol, untyped]?
+    def find_module_constant: (Class klass, String const_name) -> Hash[Symbol, untyped]?
+    def build_constant_info: (untyped value, String source, Symbol type) -> Hash[Symbol, untyped]
+    def debug_log: (String message) -> void
+    def get_private_constants: (Class klass) -> Set[Symbol]
+    def generate_candidate_constant_names: (Class klass) -> Array[Symbol]
+    end
+
+    class MethodsExtractor
+    @classes: Array[Class]
+    @filters: Array[Regexp | String]
+    @handle_errors: bool
+    @options: Hash[Symbol, untyped]
+    @method_collection_service: Services::Collection::MethodCollectionService
+    @method_filter_service: Services::Filtering::MethodFilterService
+    @method_call_service: Services::MethodCallService
+
+    def initialize: (Array[Class] classes, Array[Regexp | String] filters, bool handle_errors, ?Hash[Symbol, untyped] options) -> void
+    def extract: () -> Hash[Symbol, untyped]
+
+    private
+
+    def empty_result: () -> Hash[Symbol, Array[untyped]]
+    def collect_and_filter_methods: () -> Array[String]
+    def default_options: () -> Hash[Symbol, untyped]
+    def build_headers: () -> Array[String]
+    def build_rows: (Array[String] method_names) -> Array[Array[untyped]]
+    def build_row: (String method_name) -> Array[untyped]
+  end
+
+  class MultiTypeExtractor
+    @classes: Array[Class]
+    @types: Array[Symbol]
+    @filters: Array[Regexp | String]
+    @handle_errors: bool
+    @options: Hash[Symbol, untyped]
+
+    def initialize: (Array[Class] classes, Array[Symbol] types, Array[Regexp | String] filters, ?Hash[Symbol, untyped] extraction_config) -> void
+    def extract: () -> Hash[Symbol, untyped]
+
+    private
+
+    def extract_single_type: (Symbol type) -> Hash[Symbol, untyped]
+    def type_label: (Symbol type) -> String
+  end
+  end
+end

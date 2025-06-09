@@ -1,0 +1,16 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      module Collection
+        class InheritanceCollector
+          def collect: (Class klass) -> Set[Symbol]
+
+          private
+
+          def traverse_parent_chain: (Class klass) { (Class) -> void } -> void
+          def core_class?: (Class klass) -> bool
+        end
+      end
+    end
+  end
+end

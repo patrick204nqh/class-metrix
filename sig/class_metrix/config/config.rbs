@@ -1,0 +1,29 @@
+module ClassMetrix
+  module Config
+    class ExtractionConfig
+      @include_inheritance: bool
+      @include_modules: bool
+      @include_private: bool
+      @scope: Symbol
+
+      def initialize: (?include_inheritance: bool, ?include_modules: bool, ?include_private: bool, ?scope: Symbol) -> void
+
+      def comprehensive?: -> bool
+      def strict?: -> bool
+      def include_inheritance?: -> bool
+      def include_modules?: -> bool
+      def include_private?: -> bool
+
+      def with_private: -> ClassMetrix::Config::ExtractionConfig
+      def strict: -> ClassMetrix::Config::ExtractionConfig
+      def comprehensive: -> ClassMetrix::Config::ExtractionConfig
+
+      def to_scope_resolver_options: -> Hash[Symbol, untyped]
+      def to_extraction_options: -> Hash[Symbol, untyped]
+
+      private
+
+      def validate_scope: -> void
+    end
+  end
+end

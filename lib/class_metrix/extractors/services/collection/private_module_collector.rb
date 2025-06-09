@@ -30,7 +30,7 @@ module ClassMetrix
             # Get private methods from the module's singleton class
             # Since modules are included as singleton methods, we need to check
             # if the module has private methods that are exposed as singleton methods
-            private_methods = []
+            private_methods = [] # : Array[String]
 
             begin
               # Check if the module has private instance methods that would become
@@ -42,14 +42,16 @@ module ClassMetrix
               end
             rescue StandardError
               # Some modules might not support this method, so we'll handle gracefully
-              private_methods = []
+              private_methods = [] # : Array[String]
             end
 
             private_methods
           end
 
           def core_module?(mod)
-            [Kernel, Module, Class].include?(mod)
+            # @type var core_modules: Array[Module]
+            core_modules = [Kernel, Module, Class]
+            core_modules.include?(mod)
           end
         end
       end

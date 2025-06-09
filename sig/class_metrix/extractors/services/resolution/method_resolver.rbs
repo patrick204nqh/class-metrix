@@ -1,0 +1,22 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      module Resolution
+        class MethodResolver
+          @options: Hash[Symbol, untyped]
+
+          def initialize: (?Hash[Symbol, untyped] options) -> void
+          def resolve: (Class klass, String method_name) -> Hash[Symbol, untyped]?
+
+          private
+
+          def resolve_method_source: (Class klass, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+          def own_method?: (Class klass, Symbol method_sym) -> bool
+          def resolve_inherited_method: (Class klass, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+          def resolve_module_method: (Class klass, Symbol method_sym, String method_name) -> Hash[Symbol, untyped]?
+          def create_method_info: (String source, Symbol type, ?Proc? callable) -> Hash[Symbol, untyped]
+        end
+      end
+    end
+  end
+end

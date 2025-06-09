@@ -1,0 +1,24 @@
+module ClassMetrix
+  module Extractors
+    module Services
+      module Collection
+        class MethodCollectionService
+          @options: Hash[Symbol, untyped]
+
+          def initialize: (?Hash[Symbol, untyped] options) -> void
+          def collect_from_classes: (Array[Class] classes) -> Array[String]
+
+          private
+
+          def collect_from_single_class: (Class klass) -> Array[Symbol]
+          def collect_comprehensive_methods: (Class klass) -> Array[Symbol]
+          def inheritance_or_modules_or_private_enabled?: -> bool
+          def include_inherited?: -> bool
+          def include_modules?: -> bool
+          def include_private?: -> bool
+          def collect_private_methods: (Class klass) -> Set[Symbol]
+        end
+      end
+    end
+  end
+end
