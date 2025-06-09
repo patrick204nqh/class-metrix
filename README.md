@@ -482,8 +482,7 @@ bundle exec steep check
 bundle exec rubocop
 
 # Run examples
-ruby examples/basic/01_simple_constants.rb
-ruby examples/advanced/hash_expansion.rb
+ruby examples/basic_usage.rb
 ```
 
 ### Type Safety
