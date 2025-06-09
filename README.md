@@ -2,6 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/class-metrix.svg)](https://badge.fury.io/rb/class-metrix)
 [![CI](https://github.com/patrick204nqh/class-metrix/actions/workflows/main.yml/badge.svg)](https://github.com/patrick204nqh/class-metrix/actions/workflows/main.yml)
+[![Documentation](https://img.shields.io/badge/docs-rubydoc.info-blue.svg)](https://rubydoc.info/gems/class-metrix)
 [![Code Coverage](https://qlty.sh/badges/df5bf564-68c2-4484-84bd-70f705e58f1b/test_coverage.svg)](https://qlty.sh/gh/patrick204nqh/projects/class-metrix)
 [![Maintainability](https://qlty.sh/badges/df5bf564-68c2-4484-84bd-70f705e58f1b/maintainability.svg)](https://qlty.sh/gh/patrick204nqh/projects/class-metrix)
 
@@ -482,8 +483,7 @@ bundle exec steep check
 bundle exec rubocop
 
 # Run examples
-ruby examples/basic/01_simple_constants.rb
-ruby examples/advanced/hash_expansion.rb
+ruby examples/basic_usage.rb
 ```
 
 ### Type Safety
