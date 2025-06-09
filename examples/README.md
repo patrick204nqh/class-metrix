@@ -40,17 +40,23 @@ ruby examples/inheritance_and_modules.rb  # Inheritance and module analysis
 ```ruby
 require_relative "../lib/class_metrix"
 
-# Extract constants from multiple classes
+# Extract constants from multiple classes (comprehensive by default)
 ClassMetrix.extract(:constants)
            .from([User, Admin])
            .to_markdown
 
-# Extract class methods
+# Class-only extraction (excludes inheritance & modules)
+ClassMetrix.extract(:constants)
+           .from([User, Admin])
+           .strict
+           .to_markdown
+
+# Extract class methods (comprehensive by default)
 ClassMetrix.extract(:class_methods)
            .from([DatabaseService, CacheService])
            .to_markdown
 
-# Combined extraction
+# Combined extraction with filtering
 ClassMetrix.extract(:constants, :class_methods)
            .from([Class1, Class2])
            .filter(/config/)
