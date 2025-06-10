@@ -1,0 +1,89 @@
+name: 🔒 Security Vulnerability
+description: Report a security vulnerability (PRIVATE)
+title: "[Security]: "
+labels: ["security", "critical"]
+assignees: ["patrick204nqh"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ IMPORTANT SECURITY NOTICE ⚠️
+
+        **DO NOT use this template for public security reports!**
+
+        This template is for **non-sensitive** security improvements only.
+
+        **For actual vulnerabilities, please:**
+        1. **DO NOT** create a public issue
+        2. Email patrick204nqh@gmail.com with "SECURITY" in subject
+        3. Follow our [Security Policy](https://github.com/patrick204nqh/class-metrix/blob/master/SECURITY.md)
+
+  - type: checkboxes
+    id: security-confirmation
+    attributes:
+      label: 🔐 Security Report Type
+      description: What type of security-related issue is this?
+      options:
+        - label: This is NOT a vulnerability that could be exploited
+          required: true
+        - label: This is a security hardening suggestion
+        - label: This is a security documentation improvement
+        - label: This is a security tooling enhancement
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📋 Description
+      description: Describe the security improvement or hardening suggestion
+      placeholder: What security aspect could be improved?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: 🔍 Current Behavior
+      description: How does the current implementation handle security?
+      placeholder: Describe current security measures or lack thereof...
+
+  - type: textarea
+    id: proposed-improvement
+    attributes:
+      label: 💡 Proposed Improvement
+      description: What security enhancement do you suggest?
+      placeholder: Describe your proposed security improvement...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 📊 Priority Level
+      description: How important is this security improvement?
+      options:
+        - Low (nice to have)
+        - Medium (should implement)
+        - High (important for security)
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: 📚 References
+      description: Any relevant security standards, guides, or examples?
+      placeholder: |
+        - OWASP guidelines
+        - Ruby security best practices
+        - Similar implementations in other projects
+
+  - type: checkboxes
+    id: acknowledgments
+    attributes:
+      label: ✅ Acknowledgments
+      options:
+        - label: I have read the [Security Policy](https://github.com/patrick204nqh/class-metrix/blob/master/SECURITY.md)
+          required: true
+        - label: I confirm this is NOT a vulnerability report
+          required: true
+        - label: I understand that actual vulnerabilities should be reported privately
+          required: true

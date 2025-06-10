@@ -1,0 +1,69 @@
+# Git attributes for better diff handling and file classification
+# https://git-scm.com/docs/gitattributes
+
+# Ruby files - use built-in ruby diff driver for better diffs
+*.rb diff=ruby
+
+# Gemfiles are Ruby too
+Gemfile diff=ruby
+*.gemspec diff=ruby
+Rakefile diff=ruby
+
+# YAML files
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+
+# Markdown files
+*.md text
+*.markdown text
+
+# RBS type definition files
+*.rbs linguist-language=RBS text
+
+# Documentation files
+CHANGELOG* text
+README* text
+LICENSE* text
+CONTRIBUTING* text
+SECURITY* text
+
+# Configuration files
+.rubocop.yml text
+.editorconfig text
+Steepfile text
+
+# Ensure consistent line endings
+* text=auto
+
+# Binary files (don't attempt text processing)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+# Generated files - mark as binary to avoid diff noise
+coverage/* binary
+tmp/* binary
+
+# Exclude generated files from GitHub language statistics
+coverage/* linguist-generated=true
+tmp/* linguist-generated=true
+spec/fixtures/* linguist-generated=true
+
+# Mark documentation directories appropriately
+docs/* linguist-documentation=true
+examples/* linguist-documentation=true
+
+# Export-ignore patterns (files not included in git archive)
+.github/ export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+.editorconfig export-ignore
+.rubocop.yml export-ignore
+Steepfile export-ignore
+spec/ export-ignore
+coverage/ export-ignore
+tmp/ export-ignore
+scripts/ export-ignore
