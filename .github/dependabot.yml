@@ -12,15 +12,19 @@ updates:
     reviewers:
       - "patrick204nqh"
     assignees:
-      - "dependabot[bot]"
+      - "patrick204nqh"
     commit-message:
       prefix: "deps"
       prefix-development: "deps-dev"
       include: "scope"
     labels:
       - "dependencies"
-      - "ruby"
+      - "lang: ruby"
       - "automated"
+      - "bot: dependabot"
+      - "type: maintenance"
+      - "status: needs-review"
+      - "size: sm" # Most dependency updates are small
 
     # Pull request configuration
     pull-request-branch-name:
@@ -85,14 +89,18 @@ updates:
     reviewers:
       - "patrick204nqh"
     assignees:
-      - "dependabot[bot]"
+      - "patrick204nqh" # Assign to yourself for better visibility
     commit-message:
       prefix: "ci"
       include: "scope"
     labels:
-      - "github-actions"
-      - "ci"
+      - "tech: github-actions"
+      - "tech: ci-cd"
       - "automated"
+      - "bot: dependabot"
+      - "type: maintenance"
+      - "status: needs-review"
+      - "size: xs" # Action updates are usually very small
 
     # Pull request configuration
     pull-request-branch-name:
