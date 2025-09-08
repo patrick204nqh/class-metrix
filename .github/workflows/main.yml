@@ -46,7 +46,7 @@ jobs:
 
       - name: Checkout code to check file changes
         if: github.event_name == 'pull_request' && !github.event.pull_request.draft
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -80,7 +80,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload coverage to Qlty (Ruby ${{ env.RUBY_VERSION }} only)
         if: matrix.ruby == env.RUBY_VERSION && success() && github.ref == 'refs/heads/master'
-        uses: qltysh/qlty-action/coverage@v1
+        uses: qltysh/qlty-action/coverage@v2
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: coverage/.resultset.json
@@ -118,7 +118,7 @@ jobs:
     name: Security Scan
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -158,7 +158,7 @@ jobs:
     name: Code Quality
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -176,7 +176,7 @@ jobs:
     name: Compatibility Check
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -210,7 +210,7 @@ jobs:
     needs: [test, security, quality, compatibility]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -233,7 +233,7 @@ jobs:
     needs: [test, security, quality, compatibility]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
