@@ -234,7 +234,7 @@ jobs:
           files: ${{ steps.build.outputs.gem_file }}
 
       - name: Upload gem artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: class-metrix-gem-${{ needs.validate-release.outputs.version }}
           path: ${{ steps.build.outputs.gem_file }}
